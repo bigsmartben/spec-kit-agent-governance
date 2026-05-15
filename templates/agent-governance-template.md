@@ -1,10 +1,16 @@
 # Repository Agent Governance
 
-This file is the source of truth for repository-level agent collaboration, skill usage,
-MCP/tool permissions, and integration adapter behavior.
+This file is the source of truth for repository-level agent governance.
 
-It does not define project principles, architecture decisions, UC semantics, feature
-requirements, or implementation tasks. Those remain governed by their own source files.
+The agent governance domain covers:
+
+- agent collaboration rules
+- tool and MCP permissions
+- write boundaries
+- skill invocation contracts
+
+The project governance domain is independent and has its own source of truth. Keep these
+domains decoupled: this file does not name, rank, or depend on project-governance files.
 
 <!--
 Sync Impact Report
@@ -17,28 +23,20 @@ Sync Impact Report
 - Follow-up TODOs: TODO(FOLLOW_UP_TODOS)
 -->
 
+## Governance Domains
+
+- Agent Governance Domain: this file is the SSOT for agent collaboration rules,
+  tool and MCP permissions, write boundaries, and skill invocation contracts.
+- Project Governance Domain: independent SSOT, managed outside this file.
+- Do not encode upstream/downstream dependencies between governance domains.
+
 ## Authority Order
 
 1. Current user instruction
-2. This repository agent governance file
-3. User-authored repository instructions
-4. `.specify/memory/constitution.md`
-5. `.specify/memory/architecture.md`
-6. `.specify/memory/uc.md`
-7. Active feature artifacts under `specs/<feature>/`
-8. Skill-local `SKILL.md`
-9. Tool/MCP defaults
-
-## Source Of Truth
-
-- Project principles: `.specify/memory/constitution.md`
-- Architecture boundaries: `.specify/memory/architecture.md`
-- User scenarios and business semantics: `.specify/memory/uc.md`
-- Feature work: `specs/<feature>/`
-- Repository-level agent governance: `.specify/memory/agent-governance.md`
-- Skill contracts: each `SKILL.md`
-- MCP permissions: MCP configuration and allowlists
-- Extension behavior: `.specify/extensions.yml`
+2. Agent governance domain rules in this file
+3. User-authored repository instructions for agent behavior
+4. Skill-local `SKILL.md`
+5. Tool/MCP defaults
 
 ## Write Boundaries
 
@@ -46,13 +44,14 @@ Sync Impact Report
   command or integration-equivalent implement skill/alias, such as `/speckit.implement`
   or `/speckit-implement`.
 - Before any agent writes source code, tests, build configuration, migrations, runtime
-  assets, or other implementation files, the active change MUST have `spec.md`,
-  `plan.md`, and `tasks.md` under `specs/<feature>/`.
-- Bug fixes, refactors, and small code changes are not exceptions. If the required spec
-  artifacts do not exist, first create or update the spec artifacts through the Spec Kit
+  assets, or other implementation files, the active change MUST have the required
+  project-governance artifacts for implementation.
+- Bug fixes, refactors, and small code changes are not exceptions. If the required
+  project-governance artifacts do not exist, first run the owning project-governance
   workflow, then stop before implementation.
 - Direct user requests to "just edit code" or similar are treated as requests to run the
-  required spec workflow; they are not permission to bypass the code-write gate.
+  owning project-governance workflow; they are not permission to bypass the
+  implementation gate.
 - Do not edit governance, CI, MCP config, secrets, permissions, or tool settings unless
   explicitly requested.
 - Do not modify files outside the active task scope.
