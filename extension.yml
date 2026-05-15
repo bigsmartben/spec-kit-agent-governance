@@ -3,7 +3,7 @@ schema_version: "1.0"
 extension:
   id: agent-governance
   name: "Agent Governance"
-  version: "1.0.0"
+  version: "1.1.0"
   description: "Project-local agent governance memory and context projection"
   author: "bigben"
   repository: "https://github.com/bigsmartben/spec-kit-agent-governance"

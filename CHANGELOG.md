@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.0] - 2026-05-15
+
+### Changed
+
+- Decoupled the agent governance domain from specific project-governance source files.
+- Updated generated projections to describe project governance as an independent domain.
+
+### Added
+
+- Tests for template and projection domain boundaries.
+
 ## [1.0.0] - 2026-05-14
 
 ### Added

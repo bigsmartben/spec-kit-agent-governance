@@ -24,7 +24,7 @@ The generated projection is written between managed markers in the active agent 
 From a Spec Kit project:
 
 ```bash
-specify extension add agent-governance --from https://github.com/bigsmartben/spec-kit-agent-governance/archive/refs/tags/v1.0.0.zip
+specify extension add agent-governance --from https://github.com/bigsmartben/spec-kit-agent-governance/archive/refs/tags/v1.1.0.zip
 ```
 
 For local development:
