@@ -1,60 +1,45 @@
 ---
-description: "Create or refresh repository agent governance instructions"
+description: "Generate or update the active agent governance file"
 ---
 
-# Agent Governance Refresh
+# Agent Governance Generate/Update
 
-Create or refresh the repository-local agent governance projection.
-
-## User Input
+## Input
 
 $ARGUMENTS
 
-## Goal
+## Output
 
-Keep `.specify/memory/agent-governance.md` as the source of truth for repository-level agent behavior, and project a concise managed section into the active agent context file.
+- Active agent platform governance file.
+- Managed `SPECKIT GOVERNANCE` section.
+- `.specify/memory/agent-governance.md`: internal cache.
 
 ## Procedure
 
-1. Verify that the current directory is a Spec Kit project by checking for `.specify/`.
-2. If `.specify/memory/agent-governance.md` does not exist, create it from `.specify/extensions/agent-governance/templates/agent-governance-template.md`.
-3. Resolve the target context file in this order:
-   - `.specify/init-options.json` field `context_file`
-   - known context file for `.specify/integration.json` field `default_integration` or `integration`
+1. Require `.specify/`.
+2. Resolve target:
+   - `.specify/init-options.json` `context_file`
+   - `.specify/integration.json` `default_integration` or `integration`
    - `AGENTS.md`
-4. Run the helper script when Python is available:
+3. Create internal cache when missing.
+4. Generate target file when missing.
+5. Update only the managed section when target exists.
+6. Use existing managed section as refresh source.
+7. Distill detected repository areas into action rules.
+   - depth: 2
+   - include hidden and cache directories
+8. Preserve content outside managed markers.
+9. Preserve managed markers verbatim.
+10. Run:
 
    ```bash
-   python3 .specify/extensions/agent-governance/scripts/refresh_agent_governance.py
+   uv run python .specify/extensions/agent-governance/scripts/refresh_agent_governance.py
    ```
 
-5. If Python is not available, manually update the resolved context file by replacing the managed section between:
+## Report
 
-   ```text
-   <!-- SPECKIT GOVERNANCE START -->
-   <!-- SPECKIT GOVERNANCE END -->
-   ```
-
-6. Preserve all user-authored content outside the managed markers.
-7. Report:
-   - source memory file path
-   - target context file path
-   - whether the governance memory was created or already existed
-   - whether the projection was inserted or replaced
-
-## Manual Projection Requirements
-
-When manual editing is required, the managed section must include:
-
-- `## Repository Agent Governance`
-- source of truth: `.specify/memory/agent-governance.md`
-- active integration
-- resolved constraints file
-- installed integrations
-- authority order
-- write boundaries
-- MCP and external tool policy
-- skill usage policy
-- required handoff report
-
-Do not edit implementation files while running this command.
+- target governance file
+- generated or updated
+- review target
+- internal cache status
+- captured evidence when cache is created

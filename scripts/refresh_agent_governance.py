@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Refresh Spec Kit agent governance projection for the current project."""
+"""Generate or refresh Spec Kit agent platform governance for the current project."""
 
 from __future__ import annotations
 
@@ -58,18 +58,21 @@ def main() -> int:
         print("Error: .specify/ not found. Run from a Spec Kit project root.", file=sys.stderr)
         return 1
 
-    created_memory = ensure_memory(root)
     state = read_json(root / INTEGRATION_JSON)
     init_options = read_json(root / INIT_OPTIONS_JSON)
+    created_memory = ensure_memory(root)
     target = resolve_target(root, state, init_options)
     projection = render_projection(root, target, state, created_memory)
+    evidence_summary = repository_evidence_summary(root, state, init_options) if created_memory else ""
     action = write_projection(target, projection)
     remove_stale_sections(root, target, init_options, state)
 
-    print(f"Source memory: {MEMORY_PATH.as_posix()}")
-    print(f"Target context: {rel(root, target)}")
-    print(f"Memory: {'created' if created_memory else 'existing'}")
-    print(f"Projection: {action}")
+    print(f"Target governance file: {rel(root, target)}")
+    print(f"Governance file: {action}")
+    print(f"Review target: {rel(root, target)}")
+    print(f"Internal initialization cache: {MEMORY_PATH.as_posix()} ({'created' if created_memory else 'existing'})")
+    if created_memory:
+        print(f"Repository evidence: {evidence_summary}")
     return 0
 
 
@@ -81,8 +84,173 @@ def ensure_memory(root: Path) -> bool:
     if not template.exists():
         raise SystemExit(f"Error: template not found: {TEMPLATE_PATH.as_posix()}")
     memory.parent.mkdir(parents=True, exist_ok=True)
-    memory.write_bytes(template.read_bytes())
+    memory.write_text(render_initial_memory(root, template.read_text(encoding="utf-8-sig")), encoding="utf-8")
     return True
+
+
+def render_initial_memory(root: Path, template: str) -> str:
+    content = normalize_newlines(template)
+    state = read_json(root / INTEGRATION_JSON)
+    init_options = read_json(root / INIT_OPTIONS_JSON)
+    content = replace_sync_report(content, root, state)
+    evidence = "\n".join(
+        [
+            "## Repository Evidence",
+            "",
+            *repository_evidence_lines(root, state, init_options),
+            "",
+            "## Repository Areas",
+            "",
+            *repository_area_lines(root),
+            "",
+            "## Development Commands",
+            "",
+            *development_command_lines(root),
+            "",
+        ]
+    )
+    marker = "\n## Scope\n"
+    if marker in content:
+        content = content.replace(marker, f"\n{evidence}{marker}", 1)
+    else:
+        content = content.rstrip() + "\n\n" + evidence
+    return content
+
+
+def replace_sync_report(content: str, root: Path, state: dict[str, Any]) -> str:
+    report = "\n".join(
+        [
+            "<!--",
+            "Sync Impact Report",
+            f"- Active Integration: {default_integration(state) or 'unknown'}",
+            f"- Installed Integrations: {', '.join(installed_integrations(state)) or 'none'}",
+            f"- Skills Scanned: {len(scan_skills(root))}",
+            f"- MCP Config Files Scanned: {', '.join(scan_mcp_configs(root)) or 'none'}",
+            f"- Extension Config Status: .specify/extensions.yml ({extensions_status(root)})",
+            "- Sections Changed: initialized repository evidence and development commands",
+            "- Flow: generate missing target governance files; update existing target governance files",
+            "-->",
+        ]
+    )
+    pattern = re.compile(r"<!--\nSync Impact Report\n.*?\n-->", re.DOTALL)
+    if pattern.search(content):
+        return pattern.sub(report, content, count=1)
+    return content
+
+
+def repository_evidence_summary(root: Path, state: dict[str, Any], init_options: dict[str, Any]) -> str:
+    evidence = repository_evidence_lines(root, state, init_options)
+    detected = [line for line in evidence if "none detected" not in line and "`unknown`" not in line]
+    return "; ".join(line.removeprefix("- ") for line in detected) or "none detected"
+
+
+def repository_evidence_lines(root: Path, state: dict[str, Any], init_options: dict[str, Any]) -> list[str]:
+    lines = [
+        evidence_line("README", existing_paths(root, ["README.md", "README.markdown", "README.txt"])),
+        evidence_line(
+            "Package manifest",
+            existing_paths(root, ["package.json", "pyproject.toml", "Cargo.toml", "go.mod", "Gemfile", "pom.xml", "build.gradle", "build.gradle.kts"]),
+        ),
+        evidence_line(
+            "Lockfiles",
+            existing_paths(root, ["package-lock.json", "pnpm-lock.yaml", "yarn.lock", "uv.lock", "poetry.lock", "Cargo.lock", "go.sum", "Gemfile.lock"]),
+        ),
+        evidence_line("Task runners", existing_paths(root, ["Makefile", "Taskfile.yml", "Taskfile.yaml", "justfile"])),
+        evidence_line("CI workflows", directory_files(root, ".github/workflows")),
+        evidence_line("Source paths", existing_dirs(root, ["src", "app", "lib", "scripts", "commands", "templates"])),
+        evidence_line("Test paths", existing_dirs(root, ["test", "tests", "spec", "specs"])),
+        evidence_line("Repository areas", repository_area_paths(root)),
+        evidence_line("Existing agent context files", existing_context_files(root, init_options, state)),
+        evidence_line("Repository-local skills", scan_skills(root)),
+        evidence_line("MCP configs", scan_mcp_configs(root)),
+        f"- Active integration: `{default_integration(state) or 'unknown'}`",
+        f"- Resolved context file: `{rel(root, resolve_target(root, state, init_options))}`",
+    ]
+    return lines
+
+
+def evidence_line(label: str, values: list[str]) -> str:
+    return f"- {label}: {format_values(values)}"
+
+
+def format_values(values: list[str]) -> str:
+    return ", ".join(f"`{value}`" for value in values) if values else "none detected"
+
+
+def existing_paths(root: Path, names: list[str]) -> list[str]:
+    return [name for name in names if (root / name).is_file()]
+
+
+def existing_dirs(root: Path, names: list[str]) -> list[str]:
+    return [f"{name}/" for name in names if (root / name).is_dir()]
+
+
+def directory_files(root: Path, directory: str) -> list[str]:
+    base = root / directory
+    if not base.is_dir():
+        return []
+    return sorted(rel(root, path) for path in base.iterdir() if path.is_file())
+
+
+def repository_area_lines(root: Path) -> list[str]:
+    lines = []
+    for area in repository_area_paths(root):
+        if "/" in area.rstrip("/"):
+            parent = area.rstrip("/").split("/", 1)[0] + "/"
+            lines.append(f"- `{area}`: change with parent area `{parent}`.")
+        else:
+            lines.append(f"- `{area}`: review before changing linked areas.")
+    return lines or ["- none detected"]
+
+
+def repository_area_paths(root: Path) -> list[str]:
+    areas: list[str] = []
+    for path in sorted(root.iterdir()):
+        if not path.is_dir():
+            continue
+        areas.append(f"{path.name}/")
+        for child in sorted(path.iterdir()):
+            if child.is_dir():
+                areas.append(f"{path.name}/{child.name}/")
+    return areas
+
+
+def existing_context_files(root: Path, init_options: dict[str, Any], state: dict[str, Any]) -> list[str]:
+    paths: set[Path] = {root / "AGENTS.md"}
+    for value in CONTEXT_FILES.values():
+        target = safe_project_path(root, value)
+        if target is not None:
+            paths.add(target)
+    init_target = safe_project_path(root, init_options.get("context_file"))
+    if init_target is not None:
+        paths.add(init_target)
+    resolved = resolve_target(root, state, init_options)
+    paths.add(resolved)
+    return sorted(rel(root, path) for path in paths if path.exists())
+
+
+def development_command_lines(root: Path) -> list[str]:
+    commands = package_script_lines(root)
+    if commands:
+        commands.append("- manifest commands over ad hoc equivalents")
+        return commands
+    return ["- none detected"]
+
+
+def package_script_lines(root: Path) -> list[str]:
+    package_json = root / "package.json"
+    data = read_json(package_json)
+    scripts = data.get("scripts")
+    if not isinstance(scripts, dict):
+        return []
+    result: list[str] = []
+    for name in sorted(scripts):
+        value = scripts[name]
+        if not isinstance(value, str) or not value.strip():
+            continue
+        command = f"npm {name}" if name in {"start", "stop", "test", "restart"} else f"npm run {name}"
+        result.append(f"- `{command}` -> `{value.strip()}`")
+    return result
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -151,57 +319,72 @@ def installed_integrations(state: dict[str, Any]) -> list[str]:
 
 
 def render_projection(root: Path, target: Path, state: dict[str, Any], created_memory: bool) -> str:
-    memory = root / MEMORY_PATH
+    source_text, source_label = governance_source(root, target)
     default_key = default_integration(state) or "unknown"
     installed = installed_integrations(state)
     style = projection_style(target)
     lines = [
         MARKER_START,
-        "## Repository Agent Governance",
+        "## Repository Governance",
+        "- SSOT: this managed section.",
+        f"- Target: {rel(root, target)}",
+        f"- Active integration: {default_key}",
+        f"- Refresh source: {source_label}",
+        f"- Cache: {MEMORY_PATH.as_posix()} ({'created' if created_memory else 'present'})",
         "",
-        f"Agent governance SSOT: `{MEMORY_PATH.as_posix()}`.",
-        style_lead(style),
+        "## Scope",
+        "- agent collaboration rules",
+        "- tool and MCP permissions",
+        "- write boundaries",
+        "- skill invocation contracts",
+        "- project governance: external",
         "",
-        "## Governance Domains",
-        "- Agent Governance Domain: `.specify/memory/agent-governance.md` is the SSOT for agent collaboration rules, tool and MCP permissions, write boundaries, and skill invocation contracts.",
-        "- Project Governance Domain: independent SSOT, managed outside this projection.",
-        "- Keep governance domains decoupled; do not encode upstream/downstream dependencies between them.",
-        "",
-        "## Resolved Repository Context",
-        f"- Active Integration: {default_key}",
-        f"- Resolved Constraints File: {rel(root, target)}",
-        f"- Installed Integrations: {', '.join(installed) if installed else 'none'}",
-        f"- Governance Memory: {MEMORY_PATH.as_posix()} ({'created' if created_memory else 'present'})",
+        "## Context",
+        f"- Installed integrations: {', '.join(installed) if installed else 'none'}",
         f"- Skills: {', '.join(scan_skills(root)) or 'none'}",
-        f"- MCP Configs: {', '.join(scan_mcp_configs(root)) or 'none'}",
-        f"- Extensions Config: .specify/extensions.yml ({extensions_status(root)})",
+        f"- MCP configs: {', '.join(scan_mcp_configs(root)) or 'none'}",
+        f"- Extensions config: .specify/extensions.yml ({extensions_status(root)})",
         "",
-        "## Authority Order",
+        "## Repository Evidence",
+        *section_or_default(source_text, ["## Repository Evidence"], repository_evidence_default()),
+        "",
+        "## Repository Areas",
+        *section_or_default(source_text, ["## Repository Areas"], repository_areas_default()),
+        "",
+        "## Directory Governance",
+        *section_or_default(source_text, ["## Directory Governance"], directory_governance_default()),
+        "",
+        "## Development Commands",
+        *section_or_default(source_text, ["## Development Commands"], development_commands_default()),
+        "",
+        "## Authority",
         "1. Current user instruction",
-        "2. Agent governance domain rules from `.specify/memory/agent-governance.md`",
+        "2. Active `SPECKIT GOVERNANCE` section",
         "3. User-authored repository instructions for agent behavior",
         "4. Skill-local `SKILL.md`",
         "5. Tool and MCP defaults",
         "",
-        "## Non-Negotiable Execution Gates",
-        "- Before editing implementation files, verify the active change has the required project-governance artifacts for implementation.",
-        "- If any required project-governance artifact is missing, stop implementation and run the owning project-governance workflow before editing implementation files.",
-        "- Do not treat bug fixes, refactors, or small code changes as exceptions to the implementation gate.",
-        "- Do not modify governance, CI, MCP config, secrets, permissions, or tool settings unless the user explicitly requests that change.",
-        "- Before any mutating MCP call or external write, obtain explicit user intent and report the target, action, and expected effect.",
-        "- Before handoff, report changed files, commands run, validation results, and unresolved risks.",
+        "## Repository Workflow",
+        "- Read: Repository Evidence",
+        "- Run: Development Commands",
+        "- Scope: active task only",
+        "- Preserve: user-authored edits",
+        "- Protected files: implementation, CI, MCP config, secrets, permissions, tool settings",
+        "- Protected-file writes: explicit user request only",
+        "- External writes: authorized target and action only",
+        "- Handoff: changed files, commands, validation, risks",
         "",
         "## Write Boundaries",
-        *section_or_default(memory, "## Write Boundaries", write_boundary_default(style)),
+        *section_or_default(source_text, ["## Write Boundaries"], write_boundary_default(style)),
         "",
-        "## MCP And External Tool Policy",
-        *section_or_default(memory, "## MCP Policy", mcp_default(style)),
+        "## MCP And External Tools",
+        *section_or_default(source_text, ["## MCP And External Tools", "## MCP And External Tool Policy", "## MCP Policy"], mcp_default(style)),
         "",
-        "## Skill Usage Policy",
-        *section_or_default(memory, "## Skill Contract", skill_default(style)),
+        "## Skills",
+        *section_or_default(source_text, ["## Skills", "## Skill Usage Policy", "## Skill Contract"], skill_default(style)),
         "",
-        "## Required Handoff Report",
-        *section_or_default(memory, "## Validation", handoff_default(style)),
+        "## Handoff",
+        *section_or_default(source_text, ["## Handoff", "## Required Handoff Report", "## Validation"], handoff_default(style)),
         MARKER_END,
         "",
     ]
@@ -209,14 +392,14 @@ def render_projection(root: Path, target: Path, state: dict[str, Any], created_m
 
 
 def write_projection(target: Path, projection: str) -> str:
+    existed = target.exists()
     existing = target.read_text(encoding="utf-8-sig") if target.exists() else ""
-    had_section = MARKER_START in existing and MARKER_END in existing
     updated = upsert_section(existing, projection)
     if target.suffix == ".mdc":
         updated = ensure_mdc_frontmatter(updated)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(normalize_newlines(updated), encoding="utf-8")
-    return "replaced" if had_section else "inserted"
+    return "updated" if existed else "generated"
 
 
 def upsert_section(content: str, projection: str) -> str:
@@ -272,16 +455,68 @@ def remove_section(path: Path) -> None:
         path.write_text(updated, encoding="utf-8")
 
 
-def section_or_default(memory: Path, heading: str, default: list[str]) -> list[str]:
-    section = extract_section(memory, heading)
-    return section or default
+def governance_source(root: Path, target: Path) -> tuple[str, str]:
+    managed = extract_managed_section(target)
+    if managed:
+        return managed, "active generated section"
+    memory = root / MEMORY_PATH
+    try:
+        return normalize_newlines(memory.read_text(encoding="utf-8-sig")), "initialization cache"
+    except (OSError, UnicodeDecodeError):
+        return "", "built-in defaults"
+
+
+def section_or_default(source_text: str, headings: list[str], default: list[str]) -> list[str]:
+    for heading in headings:
+        section = extract_section_from_text(source_text, heading)
+        if section:
+            return section
+    return default
+
+
+def repository_evidence_default() -> list[str]:
+    return ["- none captured"]
+
+
+def repository_areas_default() -> list[str]:
+    return ["- none detected"]
+
+
+def directory_governance_default() -> list[str]:
+    return [
+        "- Responsibility: one primary purpose per directory.",
+        "- Depth: 2.",
+        "- Coverage: include visible, hidden, generated, cache, config/env, tool, and agent directories.",
+        "- Mixed concerns: follow existing repo convention or split responsibility.",
+        "- Change impact: review linked code, tests, docs, config/env, data, assets, generated files, and tool outputs; update only when in scope and authorized.",
+    ]
+
+
+def development_commands_default() -> list[str]:
+    return ["- none recorded"]
 
 
 def extract_section(path: Path, heading: str) -> list[str]:
     try:
-        lines = normalize_newlines(path.read_text(encoding="utf-8-sig")).splitlines()
+        return extract_section_from_text(path.read_text(encoding="utf-8-sig"), heading)
     except (OSError, UnicodeDecodeError):
         return []
+
+
+def extract_managed_section(path: Path) -> str:
+    try:
+        content = normalize_newlines(path.read_text(encoding="utf-8-sig"))
+    except (OSError, UnicodeDecodeError):
+        return ""
+    start = content.find(MARKER_START)
+    end = content.find(MARKER_END, start if start != -1 else 0)
+    if start == -1 or end == -1 or end <= start:
+        return ""
+    return content[start + len(MARKER_START) : end]
+
+
+def extract_section_from_text(text: str, heading: str) -> list[str]:
+    lines = normalize_newlines(text).splitlines()
     capture = False
     result: list[str] = []
     for line in lines:
@@ -314,20 +549,31 @@ def style_lead(style: str) -> str:
 
 def write_boundary_default(style: str) -> list[str]:
     if style == "rule":
-        return ["- Stay inside the active task scope.", "- Preserve user-authored edits.", "- Follow `.specify/memory/agent-governance.md`."]
-    return ["- Follow `.specify/memory/agent-governance.md` for the full repository write policy.", "- Keep edits inside the active task scope and preserve user changes."]
+        return [
+            "- Stay inside the active task scope.",
+            "- Preserve user-authored edits.",
+            "- Preserve managed markers verbatim: `<!-- SPECKIT GOVERNANCE START -->` and `<!-- SPECKIT GOVERNANCE END -->`.",
+        ]
+    return [
+        "- Keep edits inside the active task scope and preserve user changes.",
+        "- Preserve managed markers verbatim: `<!-- SPECKIT GOVERNANCE START -->` and `<!-- SPECKIT GOVERNANCE END -->`.",
+    ]
 
 
 def mcp_default(style: str) -> list[str]:
-    return ["- MCP tools are read-only unless the user explicitly authorizes a mutating action.", "- External writes must name the target, action, and expected effect before execution."]
+    return ["- Read-only unless the user authorizes mutation.", "- External writes: target, action, expected effect."]
 
 
 def skill_default(style: str) -> list[str]:
-    return ["- Use skill-local `SKILL.md` contracts when a skill is invoked.", "- Do not infer write scope beyond the paths declared by the active skill."]
+    return [
+        "- Use active skill `SKILL.md`.",
+        "- Write scope: declared skill paths only.",
+        "- Repository-local skill specs should declare purpose, trigger, allowed read paths, allowed write paths, forbidden paths, outputs, and validation command.",
+    ]
 
 
 def handoff_default(style: str) -> list[str]:
-    return ["- Report changed files.", "- Report commands run.", "- Report tests or validation results.", "- Report unresolved risks."]
+    return ["- changed files", "- commands run", "- validation result", "- unresolved risks"]
 
 
 def scan_feature_specs(root: Path) -> str:
