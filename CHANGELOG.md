@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [2.0.0] - 2026-05-25
+
 ### Changed
 
 - Reposition the extension as a Repository Governance Framework generator.
