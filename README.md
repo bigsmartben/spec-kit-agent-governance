@@ -1,6 +1,6 @@
-# Spec Kit Agent Governance
+# Spec Kit Repository Governance
 
-Generate the active agent platform governance SSOT section.
+Generate the active Repository Governance Framework SSOT section.
 
 ## Output
 
@@ -12,18 +12,19 @@ Generate the active agent platform governance SSOT section.
 - Generate missing target governance file.
 - Update existing target governance file.
 - Distill detected repository areas into action rules.
+- Capture repository facts as vertical SSOT evidence.
 - Analyze repository areas to depth 2 only.
 - Include hidden and cache directories in repository area governance.
 - Enforce one primary responsibility per directory.
 - Preserve user-authored content outside managed markers.
 - Preserve managed markers verbatim.
-- Keep `.specify/memory/agent-governance.md` internal.
+- Keep `.specify/memory/repository-governance.md` internal.
 - Review only the active target file.
 
 ## Install
 
 ```bash
-specify extension add agent-governance --from https://github.com/bigsmartben/spec-kit-agent-governance/archive/refs/tags/v1.2.0.zip
+specify extension add repository-governance --from https://github.com/bigsmartben/spec-kit-agent-governance/archive/refs/tags/v1.2.0.zip
 ```
 
 Local development:
@@ -35,21 +36,30 @@ specify extension add --dev /path/to/spec-kit-agent-governance
 ## Run
 
 ```text
-/speckit.agent-governance.refresh
+/speckit.repository-governance.refresh
 ```
 
 Helper:
 
 ```bash
-uv run python .specify/extensions/agent-governance/scripts/refresh_agent_governance.py
+uv run python .specify/extensions/repository-governance/scripts/refresh_repository_governance.py
 ```
 
 ## Files
 
 - `extension.yml`
-- `commands/speckit.agent-governance.refresh.md`
-- `scripts/refresh_agent_governance.py`
-- `templates/agent-governance-template.md`
+- `commands/speckit.repository-governance.refresh.md`
+- `scripts/refresh_repository_governance.py`
+- `templates/repository-governance-template.md`
+
+## SSOT Coverage
+
+- Architecture SSOT evidence from source roots, route files, API contracts, and deployment directories.
+- Engineering SSOT evidence from CI workflows, release/version files, manifests, and task runners.
+- Code Style SSOT evidence from formatter, lint, type-check, and test configuration.
+- Directory Structure SSOT evidence from repository areas scanned to depth 2.
+- Toolchain SSOT evidence from manifests, lockfiles, Docker, compose, and task runner files.
+- Agent Harness SSOT evidence from active agent context files, repository-local skills, and MCP configs.
 
 ## Verify
 
