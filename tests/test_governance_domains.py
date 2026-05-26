@@ -9,10 +9,13 @@ ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "templates" / "repository-governance-template.md"
 SCRIPT = ROOT / "scripts" / "refresh_repository_governance.py"
 README = ROOT / "README.md"
+AGENTS = ROOT / "AGENTS.md"
 COMMAND = ROOT / "commands" / "speckit.repository-governance.refresh.md"
 EXTENSION = ROOT / "extension.yml"
 EXTENSION_IGNORE = ROOT / ".extensionignore"
 EXTENSION_GOVERNANCE = ROOT / "docs" / "extension-governance.md"
+GIT_IGNORE = ROOT / ".gitignore"
+BUILD_COMMAND = "zip -qr dist/repository-governance.zip extension.yml commands scripts templates -x '*/__pycache__/*' '*.pyc'"
 
 
 def load_refresh_module():
@@ -100,6 +103,24 @@ def test_extension_governance_defines_repository_extension_contract():
     assert "Keep `CONTEXT_FILES` mappings explicit." in text
     assert "Constrain target paths with `safe_project_path`." in text
     assert "Run: `uv run pytest -q`." in text
+
+
+def test_build_command_documents_runtime_extension_package():
+    readme = README.read_text(encoding="utf-8")
+    agents = AGENTS.read_text(encoding="utf-8")
+    governance = EXTENSION_GOVERNANCE.read_text(encoding="utf-8")
+    extension_ignore = set(EXTENSION_IGNORE.read_text(encoding="utf-8").splitlines())
+    git_ignore = set(GIT_IGNORE.read_text(encoding="utf-8").splitlines())
+
+    assert "## Build" in readme
+    assert "Build the local extension archive with:" in governance
+    assert BUILD_COMMAND in readme
+    assert BUILD_COMMAND in agents
+    assert BUILD_COMMAND in governance
+    assert "dist/" in extension_ignore
+    assert "*.zip" in extension_ignore
+    assert "dist/" in git_ignore
+    assert "*.zip" in git_ignore
 
 
 def test_usage_is_single_command_generate_or_update_flow():

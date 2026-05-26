@@ -4,6 +4,7 @@
 
 ### Added
 
+- Document the local extension package build command for `dist/repository-governance.zip`.
 - Add repository extension governance documentation for command, template, script, path-safety, package-boundary, and verification rules.
 
 ## [2.0.0] - 2026-05-25

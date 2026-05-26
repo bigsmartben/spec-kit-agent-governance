@@ -38,6 +38,9 @@
 ```bash
 uv run python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py
 uv run pytest -q
+rm -f dist/repository-governance.zip
+mkdir -p dist
+zip -qr dist/repository-governance.zip extension.yml commands scripts templates -x '*/__pycache__/*' '*.pyc'
 ```
 
 ## Rules

@@ -108,6 +108,14 @@ Package only runtime assets needed by `specify extension add`:
 
 Exclude development-only files through `.extensionignore`, including tests, local agent instructions, dependency locks, virtual environments, caches, and this governance document.
 
+Build the local extension archive with:
+
+```bash
+rm -f dist/repository-governance.zip
+mkdir -p dist
+zip -qr dist/repository-governance.zip extension.yml commands scripts templates -x '*/__pycache__/*' '*.pyc'
+```
+
 Do not publish release archive URLs, bump versions, or change catalog metadata until release preparation.
 
 ## Change Discipline
@@ -127,6 +135,9 @@ After changing extension metadata, commands, scripts, templates, package boundar
 ```bash
 uv run python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py
 uv run pytest -q
+rm -f dist/repository-governance.zip
+mkdir -p dist
+zip -qr dist/repository-governance.zip extension.yml commands scripts templates -x '*/__pycache__/*' '*.pyc'
 ```
 
 Run: `uv run pytest -q`.
