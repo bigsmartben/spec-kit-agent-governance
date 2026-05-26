@@ -12,6 +12,7 @@ README = ROOT / "README.md"
 COMMAND = ROOT / "commands" / "speckit.repository-governance.refresh.md"
 EXTENSION = ROOT / "extension.yml"
 EXTENSION_IGNORE = ROOT / ".extensionignore"
+EXTENSION_GOVERNANCE = ROOT / "docs" / "extension-governance.md"
 
 
 def load_refresh_module():
@@ -82,6 +83,23 @@ def test_readme_positions_extension_as_repository_governance_framework():
     assert "Example:" not in text
     assert "Codex `AGENTS.md`" not in text
     assert "not a general-purpose `AGENTS.md` initializer" not in text
+
+
+def test_extension_governance_defines_repository_extension_contract():
+    assert EXTENSION_GOVERNANCE.is_file()
+    text = EXTENSION_GOVERNANCE.read_text(encoding="utf-8")
+
+    assert "Repository Governance Extension Governance" in text
+    assert "`extension.yml` declares extension metadata, command registration, hooks, tool requirements, and package discovery tags." in text
+    assert "Extensions add new Spec Kit capabilities; presets override or compose existing Spec Kit workflow commands and templates." in text
+    assert "This repository is an extension, not a preset." in text
+    assert "`commands/` owns the agent-facing command contract." in text
+    assert "`templates/` owns the stable generated governance shape." in text
+    assert "`scripts/` owns deterministic projection behavior." in text
+    assert "The active target file is the only review target." in text
+    assert "Keep `CONTEXT_FILES` mappings explicit." in text
+    assert "Constrain target paths with `safe_project_path`." in text
+    assert "Run: `uv run pytest -q`." in text
 
 
 def test_usage_is_single_command_generate_or_update_flow():
@@ -455,6 +473,7 @@ def test_extension_package_boundary_excludes_development_only_files():
     ignore = set(EXTENSION_IGNORE.read_text(encoding="utf-8").splitlines())
 
     assert "AGENTS.md" in ignore
+    assert "docs/" in ignore
     assert "pyproject.toml" in ignore
     assert "uv.lock" in ignore
     assert "tests/" in ignore

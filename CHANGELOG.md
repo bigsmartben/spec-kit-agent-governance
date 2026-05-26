@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add repository extension governance documentation for command, template, script, path-safety, package-boundary, and verification rules.
+
 ## [2.0.0] - 2026-05-25
 
 ### Changed
