@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Changed
+
+- Lock local GitHub Actions verification commands with `uv run --locked` and keep the extension install smoke test on the GitHub runner.
+
+### Fixed
+
+- Keep spec-kit integration PR sync aligned with the runtime extension package boundary and current spec-kit test node ids.
+
 ## [2.0.2] - 2026-06-03
 
 ### Fixed

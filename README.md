@@ -82,6 +82,6 @@ Repository-local `SKILL.md` files are indexed by declared name, description, tri
 ## Verify
 
 ```bash
-uv run python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py
-uv run pytest -q
+uv run --locked python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py
+uv run --locked pytest -q
 ```

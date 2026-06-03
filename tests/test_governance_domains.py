@@ -4,6 +4,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "templates" / "repository-governance-template.md"
@@ -146,8 +148,8 @@ def test_ci_workflow_runs_governance_contract_on_supported_python_versions():
     assert "cancel-in-progress: true" in text
     assert 'python-version: ["3.10", "3.13"]' in text
     assert "astral-sh/setup-uv@" in text
-    assert "uv run python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py" in text
-    assert "uv run pytest -q" in text
+    assert "uv run --locked python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py" in text
+    assert "uv run --locked pytest -q" in text
 
 
 def test_extension_artifact_workflow_builds_runtime_zip_and_can_open_spec_kit_pr():
@@ -163,8 +165,11 @@ def test_extension_artifact_workflow_builds_runtime_zip_and_can_open_spec_kit_pr
     assert "extensions/repository-governance" in text
     assert "extension-release-v${VERSION}" in text
     assert "gh pr create --repo bigsmartben/spec-kit" in text
-    assert "uv run python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py" in text
-    assert "uv run pytest -q" in text
+    assert "uv run --locked python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py" in text
+    assert "uv run --locked pytest -q" in text
+    assert "Check workflow YAML syntax" in text
+    assert "python - <<'PY'" in text
+    assert "yaml.safe_load" in text
     assert "repository-governance-v${VERSION}.zip" in text
     assert "required_entries" in text
     assert '"extension.yml"' in text
@@ -173,6 +178,17 @@ def test_extension_artifact_workflow_builds_runtime_zip_and_can_open_spec_kit_pr
     assert '"templates/repository-governance-template.md"' in text
     assert 'forbidden_prefixes = (".github/", ".git/", "docs/", "tests/", "__pycache__/")' in text
     assert 'forbidden_entries = {"AGENTS.md", "pyproject.toml", "uv.lock", "CHANGELOG.md", ".extensionignore"}' in text
+    assert "Smoke install extension on GitHub runner" in text
+    assert "specify init --here --ai codex --script sh --ignore-agent-tools" in text
+    assert 'specify extension remove repository-governance --force' in text
+    assert 'specify extension add --dev "$GITHUB_WORKSPACE"' in text
+
+
+def test_workflow_files_are_valid_yaml():
+    yaml = pytest.importorskip("yaml")
+
+    for workflow in (CI_WORKFLOW, ARTIFACT_WORKFLOW):
+        assert yaml.safe_load(workflow.read_text(encoding="utf-8"))
 
 
 def test_usage_is_single_command_generate_or_update_flow():
