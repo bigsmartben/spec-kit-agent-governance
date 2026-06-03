@@ -32,9 +32,9 @@ Do not add preset behavior here. Do not override core `/speckit.specify`, `/spec
 
 Command files may name required inputs, outputs, procedure steps, helper commands, and final reporting requirements. They must not hide durable output structure that belongs in templates or scripts.
 
-Template files define default governance wording, managed section structure, SSOT read order, vertical SSOT registry, write boundaries, MCP policy, skill contract, and handoff requirements. Keep templates concise, direct, self-contained, and free of project-specific examples.
+Template files define default governance wording, managed section structure, SSOT read order, vertical SSOT registry, write boundaries, agent adapter contract, scenario capability index, MCP policy, skill contract, and handoff requirements. Keep templates concise, direct, self-contained, and free of project-specific examples.
 
-Script files own behavior that must be repeatable without agent interpretation: resolving the active target, creating the internal cache, preserving user content, updating only managed sections, normalizing generated text to LF, removing stale managed sections, and reporting generated or updated status.
+Script files own behavior that must be repeatable without agent interpretation: resolving the active target, creating the internal cache, preserving user content, updating only managed sections, normalizing generated text to LF, projecting adapter-specific capability rules, removing stale managed sections, and reporting generated or updated status.
 
 ## Repository Governance Contract
 
@@ -88,6 +88,18 @@ Capture vertical SSOT evidence for:
 Directory governance scans repository areas to depth 2. Include hidden, generated, cache, config, tool, and agent directories. Preserve the one-primary-purpose-per-directory rule and avoid injecting project-specific examples into generated governance.
 
 When a vertical SSOT is missing or incomplete, infer temporary guidance only from current repository facts and keep that guidance subordinate to explicit SSOT content.
+
+## Agent Adapter And Capability Index
+
+The extension projects repository capabilities through a Spec Kit Agent Adapter layer:
+
+- Repository Capability abstracts repository-local skills and MCP evidence into scenario-level capabilities.
+- Spec Kit Agent Adapter maps integration metadata to the active context target and supported discovery behavior.
+- Platform Projection emits only the rules the active agent context file can safely apply.
+
+Repository-local `SKILL.md` files are capability specs. The script may extract declared name, description, trigger, and source path to build a deterministic scenario index. The index must describe when to read the skill before planning or editing; it must not be a bare file-path inventory.
+
+MCP configuration differs across agent platforms. Repository MCP config files are candidates and evidence unless the active adapter explicitly supports them. Generated governance must instruct agents to enumerate available runtime servers, resources, and tools before use, and it must not claim that a repository config file proves an active tool is available.
 
 ## Hooks And Runtime Requirements
 
