@@ -6,6 +6,7 @@
 
 - Document the local extension package build command for `dist/repository-governance.zip`.
 - Add repository extension governance documentation for command, template, script, path-safety, package-boundary, and verification rules.
+- Add a Spec Kit Agent Adapter layer and scenario capability index for repository-local skills and MCP-backed external tool evidence, with MCP config candidates treated as evidence only and runtime enumeration required before use.
 
 ## [2.0.0] - 2026-05-25
 

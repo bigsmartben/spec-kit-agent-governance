@@ -72,6 +72,10 @@ def test_template_protects_refresh_markers_and_scopes_broad_updates():
 
     assert "`<!-- SPECKIT GOVERNANCE START -->`" in text
     assert "`<!-- SPECKIT GOVERNANCE END -->`" in text
+    assert "## Agent Platform Adapter" in text
+    assert "## Capability Index" in text
+    assert "Repository Capability: abstract repository-local skill and MCP evidence into scenario capabilities." in text
+    assert "Config candidates: evidence only, not proof of active tools." in text
     assert "Repository-local skill specs should declare" in text
     assert "Required fields: purpose" not in text
     assert "update only when in scope and authorized" in text
@@ -83,6 +87,9 @@ def test_readme_positions_extension_as_repository_governance_framework():
 
     assert "Generate the active Repository Governance Framework SSOT section." in text
     assert "Active target file from Spec Kit integration metadata." in text
+    assert "Project agent platform adapter rules from Spec Kit integration metadata." in text
+    assert "Build a scenario capability index for repository-local skills and MCP-backed external tool evidence." in text
+    assert "MCP config files are reported as candidates and evidence only" in text
     assert "Example:" not in text
     assert "Codex `AGENTS.md`" not in text
     assert "not a general-purpose `AGENTS.md` initializer" not in text
@@ -99,6 +106,8 @@ def test_extension_governance_defines_repository_extension_contract():
     assert "`commands/` owns the agent-facing command contract." in text
     assert "`templates/` owns the stable generated governance shape." in text
     assert "`scripts/` owns deterministic projection behavior." in text
+    assert "The extension projects repository capabilities through a Spec Kit Agent Adapter layer:" in text
+    assert "MCP configuration differs across agent platforms." in text
     assert "The active target file is the only review target." in text
     assert "Keep `CONTEXT_FILES` mappings explicit." in text
     assert "Constrain target paths with `safe_project_path`." in text
@@ -396,6 +405,97 @@ def test_projection_includes_generic_directory_governance(tmp_path):
     assert "- Depth: 2." in projection
     assert "Codex" not in projection
     assert "Unity" not in projection
+
+
+def test_projection_includes_agent_adapter_and_capability_index(tmp_path):
+    module = load_refresh_module()
+    root = tmp_path
+    memory = root / ".specify" / "memory"
+    memory.mkdir(parents=True)
+    (memory / "repository-governance.md").write_text(TEMPLATE.read_text(encoding="utf-8"), encoding="utf-8")
+    skill_dir = root / ".codex" / "skills" / "review"
+    skill_dir.mkdir(parents=True)
+    (skill_dir / "SKILL.md").write_text(
+        "\n".join(
+            [
+                "---",
+                "name: code-review",
+                "description: Review pull requests for behavioral regressions and missing tests.",
+                "---",
+                "",
+                "# Code Review",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (root / ".mcp.json").write_text('{"mcpServers":{"github":{"command":"github-mcp-server"}}}', encoding="utf-8")
+    (root / "docs").mkdir()
+    (root / "docs" / "mcp-notes.md").write_text("notes about mcp usage", encoding="utf-8")
+
+    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, False)
+
+    assert "## Agent Platform Adapter" in projection
+    assert "- Active integration: codex" in projection
+    assert "- Context target: AGENTS.md" in projection
+    assert "- Skill discovery: repository-local `SKILL.md` capability specs, sorted by path." in projection
+    assert "- MCP discovery: platform runtime enumeration first; repository config candidates are evidence only unless supported by this adapter." in projection
+    assert "## Capability Index" in projection
+    assert "- Repository capability: code-review" in projection
+    assert "Scenario: Review pull requests for behavioral regressions and missing tests." in projection
+    assert "Source: `.codex/skills/review/SKILL.md`." in projection
+    assert "- Repository capability: MCP-backed external tools" in projection
+    assert "Sources: MCP config candidates are evidence, not proof of active tools: `.mcp.json`." in projection
+    assert "Runtime action: enumerate available servers, resources, and tools before use." in projection
+    assert "docs/mcp-notes.md" not in projection
+
+
+def test_unknown_agent_adapter_does_not_claim_mcp_config_support(tmp_path):
+    module = load_refresh_module()
+    root = tmp_path
+    memory = root / ".specify" / "memory"
+    memory.mkdir(parents=True)
+    (memory / "repository-governance.md").write_text(TEMPLATE.read_text(encoding="utf-8"), encoding="utf-8")
+    (root / "mcp.config.json").write_text("{}", encoding="utf-8")
+
+    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "unknown-agent"}, False)
+
+    assert "- Active integration: unknown-agent" in projection
+    assert "- Skill discovery: evidence-only repository scan; platform activation is integration-specific." in projection
+    assert "- MCP discovery: platform-specific; repository config candidates are evidence only." in projection
+    assert "Sources: MCP config candidates are evidence, not proof of active tools: `mcp.config.json`." in projection
+    assert "MCP config supports active tools" not in projection
+
+
+def test_scan_mcp_configs_only_returns_known_config_candidates(tmp_path):
+    module = load_refresh_module()
+    root = tmp_path
+    (root / ".mcp.json").write_text("{}", encoding="utf-8")
+    (root / "docs").mkdir()
+    (root / "docs" / "mcp-notes.md").write_text("notes", encoding="utf-8")
+    (root / "tool.mcp.backup").write_text("backup", encoding="utf-8")
+
+    assert module.scan_mcp_configs(root) == [".mcp.json"]
+
+
+def test_skill_capabilities_are_sorted_by_path(tmp_path):
+    module = load_refresh_module()
+    root = tmp_path
+    for path, name, description in [
+        ("z/skills/later/SKILL.md", "later-skill", "Use later."),
+        ("a/skills/first/SKILL.md", "first-skill", "Use first."),
+    ]:
+        skill_path = root / path
+        skill_path.parent.mkdir(parents=True, exist_ok=True)
+        skill_path.write_text(
+            "\n".join(["---", f"name: {name}", f"description: {description}", "---"]),
+            encoding="utf-8",
+        )
+
+    lines = module.skill_capability_lines(root)
+    first_index = lines.index("- Repository capability: first-skill")
+    later_index = lines.index("- Repository capability: later-skill")
+
+    assert first_index < later_index
 
 
 def test_existing_generated_section_is_refresh_source_of_truth(tmp_path):

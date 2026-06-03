@@ -13,6 +13,8 @@ Generate the active Repository Governance Framework SSOT section.
 - Update existing target governance file.
 - Distill detected repository areas into action rules.
 - Capture repository facts as vertical SSOT evidence.
+- Project agent platform adapter rules from Spec Kit integration metadata.
+- Build a scenario capability index for repository-local skills and MCP-backed external tool evidence.
 - Analyze repository areas to depth 2 only.
 - Include hidden and cache directories in repository area governance.
 - Enforce one primary responsibility per directory.
@@ -67,7 +69,15 @@ zip -qr dist/repository-governance.zip extension.yml commands scripts templates 
 - Code Style SSOT evidence from formatter, lint, type-check, and test configuration.
 - Directory Structure SSOT evidence from repository areas scanned to depth 2.
 - Toolchain SSOT evidence from manifests, lockfiles, Docker, compose, and task runner files.
-- Agent Harness SSOT evidence from active agent context files, repository-local skills, and MCP configs.
+- Agent Harness SSOT evidence from active agent context files, repository-local skills, and MCP config candidates.
+
+## Agent Adapter
+
+- Repository Capability: abstract repository-local skill specs and MCP evidence into scenario-level capabilities.
+- Spec Kit Agent Adapter: map the active integration to the context target and supported discovery behavior.
+- Platform Projection: emit only rules the active agent context file can safely apply.
+
+Repository-local `SKILL.md` files are indexed by declared name, description, trigger, and source path. MCP config files are reported as candidates and evidence only; active servers, resources, and tools must be enumerated from the agent platform runtime before use.
 
 ## Verify
 
