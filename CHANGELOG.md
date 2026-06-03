@@ -4,6 +4,8 @@
 
 ### Added
 
+- Add GitHub Actions contract CI for repository governance validation.
+- Add a release artifact workflow that builds a deterministic runtime extension zip, smoke-installs the extension, and can open the bundled `bigsmartben/spec-kit` integration PR.
 - Document the local extension package build command for `dist/repository-governance.zip`.
 - Add repository extension governance documentation for command, template, script, path-safety, package-boundary, and verification rules.
 - Add a Spec Kit Agent Adapter layer and scenario capability index for repository-local skills and MCP-backed external tool evidence, with MCP config candidates treated as evidence only and runtime enumeration required before use.

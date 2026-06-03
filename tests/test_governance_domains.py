@@ -15,6 +15,8 @@ EXTENSION = ROOT / "extension.yml"
 EXTENSION_IGNORE = ROOT / ".extensionignore"
 EXTENSION_GOVERNANCE = ROOT / "docs" / "extension-governance.md"
 GIT_IGNORE = ROOT / ".gitignore"
+CI_WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
+ARTIFACT_WORKFLOW = ROOT / ".github" / "workflows" / "extension-artifact.yml"
 BUILD_COMMAND = "zip -qr dist/repository-governance.zip extension.yml commands scripts templates -x '*/__pycache__/*' '*.pyc'"
 
 
@@ -130,6 +132,47 @@ def test_build_command_documents_runtime_extension_package():
     assert "*.zip" in extension_ignore
     assert "dist/" in git_ignore
     assert "*.zip" in git_ignore
+
+
+def test_ci_workflow_runs_governance_contract_on_supported_python_versions():
+    text = CI_WORKFLOW.read_text(encoding="utf-8")
+
+    assert "name: Governance Contract" in text
+    assert "permissions:" in text
+    assert "contents: read" in text
+    assert "pull_request:" in text
+    assert 'branches: ["main"]' in text
+    assert "workflow_dispatch:" in text
+    assert "cancel-in-progress: true" in text
+    assert 'python-version: ["3.10", "3.13"]' in text
+    assert "astral-sh/setup-uv@" in text
+    assert "uv run python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py" in text
+    assert "uv run pytest -q" in text
+
+
+def test_extension_artifact_workflow_builds_runtime_zip_and_can_open_spec_kit_pr():
+    text = ARTIFACT_WORKFLOW.read_text(encoding="utf-8")
+
+    assert "name: Extension Artifact" in text
+    assert "contents: write" in text
+    assert 'tags: ["v*"]' in text
+    assert "workflow_dispatch:" in text
+    assert "create_integration_pr:" in text
+    assert "SPEC_KIT_FORK_PR_TOKEN" in text
+    assert "bigsmartben/spec-kit" in text
+    assert "extensions/repository-governance" in text
+    assert "extension-release-v${VERSION}" in text
+    assert "gh pr create --repo bigsmartben/spec-kit" in text
+    assert "uv run python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py" in text
+    assert "uv run pytest -q" in text
+    assert "repository-governance-v${VERSION}.zip" in text
+    assert "required_entries" in text
+    assert '"extension.yml"' in text
+    assert '"commands/speckit.repository-governance.refresh.md"' in text
+    assert '"scripts/refresh_repository_governance.py"' in text
+    assert '"templates/repository-governance-template.md"' in text
+    assert 'forbidden_prefixes = (".github/", ".git/", "docs/", "tests/", "__pycache__/")' in text
+    assert 'forbidden_entries = {"AGENTS.md", "pyproject.toml", "uv.lock", "CHANGELOG.md", ".extensionignore"}' in text
 
 
 def test_usage_is_single_command_generate_or_update_flow():
