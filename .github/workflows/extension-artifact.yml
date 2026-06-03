@@ -247,11 +247,11 @@ jobs:
           project_dir="$(mktemp -d)"
           cd "$project_dir"
           specify init --here --ai codex --script sh --ignore-agent-tools
+          specify extension remove repository-governance --force
           specify extension add --dev "$GITHUB_WORKSPACE"
-          specify extension info repository-governance
           test -f .specify/extensions/repository-governance/extension.yml
           test -f .specify/extensions/repository-governance/templates/repository-governance-template.md
-          test -f .codex/prompts/speckit.repository-governance.refresh.md
+          test -f .agents/skills/speckit-repository-governance-refresh/SKILL.md
 
       - name: Upload extension artifact
         uses: actions/upload-artifact@v7
@@ -292,8 +292,12 @@ jobs:
         run: |
           set -euo pipefail
           if [[ -z "${GH_TOKEN}" ]]; then
-            echo "SPEC_KIT_FORK_PR_TOKEN is required when integration PR creation is requested." >&2
-            exit 1
+            if [[ "${CREATE_INTEGRATION_PR}" == "true" ]]; then
+              echo "SPEC_KIT_FORK_PR_TOKEN is required when integration PR creation is requested." >&2
+              exit 1
+            fi
+            echo "SPEC_KIT_FORK_PR_TOKEN is unavailable; skipping spec-kit integration PR."
+            exit 0
           fi
 
           gh auth setup-git

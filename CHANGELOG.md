@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## [2.0.2] - 2026-06-03
+
+### Fixed
+
+- Fix release workflow smoke installation after `v2.0.1` failed before artifact publication when Spec Kit already installs the bundled repository-governance extension and projects Codex commands as `.agents/skills`.
+- Allow tag release artifact publication to complete when the optional spec-kit integration PR token is unavailable.
+
 ## [2.0.1] - 2026-06-03
 
 ### Added
