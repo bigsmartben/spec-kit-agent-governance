@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [2.0.1] - 2026-06-03
+
 ### Added
 
 - Add GitHub Actions contract CI for repository governance validation.
