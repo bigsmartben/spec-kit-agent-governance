@@ -214,6 +214,12 @@ def test_extension_artifact_workflow_builds_runtime_zip_and_can_open_spec_kit_pr
     assert "specify init --here --integration codex --script sh --ignore-agent-tools" in text
     assert 'specify extension remove repository-governance --force' in text
     assert 'specify extension add --dev "$GITHUB_WORKSPACE"' in text
+    assert "tests/test_arch_templates.py" in text
+    assert "TestGitExtensionOptIn::test_community_extensions_and_workflow_preset_auto_installed" in text
+    assert "TestGitExtensionOptIn::test_no_git_keeps_community_defaults" in text
+    assert "workflow_preset_integration_release_payload_contract" in text
+    assert "TestBundledCommunityExtensionLocator" not in text
+    assert "TestGitExtensionAutoInstall" not in text
 
 
 def test_workflow_files_are_valid_yaml():

@@ -336,9 +336,10 @@ jobs:
           python3 -m pip install -e '.[test]'
           python3 -m py_compile extensions/repository-governance/scripts/refresh_repository_governance.py
           python3 -m pytest -q \
-            tests/test_extensions.py::TestBundledCommunityExtensionLocator \
-            tests/integrations/test_cli.py::TestGitExtensionAutoInstall::test_community_extensions_and_workflow_preset_auto_installed \
-            tests/integrations/test_cli.py::TestGitExtensionAutoInstall::test_no_git_keeps_community_defaults
+            tests/test_arch_templates.py \
+            tests/integrations/test_cli.py::TestGitExtensionOptIn::test_community_extensions_and_workflow_preset_auto_installed \
+            tests/integrations/test_cli.py::TestGitExtensionOptIn::test_no_git_keeps_community_defaults
+          python3 -m pytest -q tests/test_presets.py -k workflow_preset_integration_release_payload_contract
           python3 -m json.tool extensions/catalog.json >/dev/null
 
           git config user.name "github-actions[bot]"
@@ -361,7 +362,8 @@ jobs:
             echo
             echo "## Test Plan"
             echo "- [x] python3 -m py_compile extensions/repository-governance/scripts/refresh_repository_governance.py"
-            echo "- [x] python3 -m pytest -q tests/test_extensions.py::TestBundledCommunityExtensionLocator tests/integrations/test_cli.py::TestGitExtensionAutoInstall::test_community_extensions_and_workflow_preset_auto_installed tests/integrations/test_cli.py::TestGitExtensionAutoInstall::test_no_git_keeps_community_defaults"
+            echo "- [x] python3 -m pytest -q tests/test_arch_templates.py tests/integrations/test_cli.py::TestGitExtensionOptIn::test_community_extensions_and_workflow_preset_auto_installed tests/integrations/test_cli.py::TestGitExtensionOptIn::test_no_git_keeps_community_defaults"
+            echo "- [x] python3 -m pytest -q tests/test_presets.py -k workflow_preset_integration_release_payload_contract"
             echo "- [x] python3 -m json.tool extensions/catalog.json >/dev/null"
           } > "${body_file}"
           if gh pr view "${branch}" --repo bigsmartben/spec-kit >/dev/null 2>&1; then
