@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [2.0.4] - 2026-06-24
+
 ### Changed
 
 - Lock local GitHub Actions verification commands with `uv run --locked` and keep the extension install smoke test on the GitHub runner.
