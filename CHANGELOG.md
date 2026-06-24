@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## [2.0.5] - 2026-06-24
+
+### Fixed
+
+- Update the release smoke install command to use Spec Kit's current `--integration codex` option.
+
 ## [2.0.4] - 2026-06-24
 
 ### Changed

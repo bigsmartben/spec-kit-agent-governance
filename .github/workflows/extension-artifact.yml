@@ -227,7 +227,7 @@ jobs:
           project_dir="$(mktemp -d "${RUNNER_TEMP}/repository-governance-smoke.XXXXXX")"
           trap 'rm -rf "$project_dir"' EXIT
           cd "$project_dir"
-          specify init --here --ai codex --script sh --ignore-agent-tools
+          specify init --here --integration codex --script sh --ignore-agent-tools
           specify extension remove repository-governance --force
           specify extension add --dev "$GITHUB_WORKSPACE"
           test -f .specify/extensions/repository-governance/extension.yml
