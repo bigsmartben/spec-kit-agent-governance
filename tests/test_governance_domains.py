@@ -211,7 +211,7 @@ def test_extension_artifact_workflow_builds_runtime_zip_and_can_open_spec_kit_pr
     assert 'forbidden_prefixes = (".github/", ".git/", "docs/", "tests/", "tools/", "__pycache__/")' in text
     assert 'forbidden_entries = {"AGENTS.md", "pyproject.toml", "uv.lock", "CHANGELOG.md", ".extensionignore"}' in text
     assert "Smoke install extension on GitHub runner" in text
-    assert "specify init --here --ai codex --script sh --ignore-agent-tools" in text
+    assert "specify init --here --integration codex --script sh --ignore-agent-tools" in text
     assert 'specify extension remove repository-governance --force' in text
     assert 'specify extension add --dev "$GITHUB_WORKSPACE"' in text
 
