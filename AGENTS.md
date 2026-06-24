@@ -56,6 +56,21 @@ uv run python tools/build_repository_governance_zip.py
 - Update `CHANGELOG.md` for behavior changes.
 - Package only runtime assets required by Spec Kit extension install.
 
+## Integration Boundary
+
+- This repository owns the `repository-governance` extension source, tests,
+  release artifact, and source documentation.
+- Do not open pull requests from this repository directly to `github/spec-kit`.
+- Do not push branches to `github/spec-kit` or add workflow automation that
+  targets `github/spec-kit` for pull requests, repository dispatches, or direct
+  writes.
+- If a Spec Kit catalog or bundled snapshot update is needed, target the
+  `bigsmartben/spec-kit` integration fork first. The integration fork owns any
+  downstream pull request to `github/spec-kit`.
+- Source releases must provide source-backed metadata for the integration fork:
+  repository URL, release version, source commit SHA, download URL, and
+  validation evidence.
+
 ## Boundaries
 
 - Write surface: `.specify/memory/repository-governance.md` and managed sections in known agent context files.
