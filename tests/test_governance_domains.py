@@ -2,6 +2,7 @@ import importlib.util
 import shutil
 import subprocess
 import sys
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -10,6 +11,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 TEMPLATE = ROOT / "templates" / "repository-governance-template.md"
 SCRIPT = ROOT / "scripts" / "refresh_repository_governance.py"
+BUILD_SCRIPT = ROOT / "tools" / "build_repository_governance_zip.py"
 README = ROOT / "README.md"
 AGENTS = ROOT / "AGENTS.md"
 COMMAND = ROOT / "commands" / "speckit.repository-governance.refresh.md"
@@ -19,7 +21,8 @@ EXTENSION_GOVERNANCE = ROOT / "docs" / "extension-governance.md"
 GIT_IGNORE = ROOT / ".gitignore"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "ci.yml"
 ARTIFACT_WORKFLOW = ROOT / ".github" / "workflows" / "extension-artifact.yml"
-BUILD_COMMAND = "zip -qr dist/repository-governance.zip extension.yml commands scripts templates -x '*/__pycache__/*' '*.pyc'"
+BUILD_COMMAND = "uv run python tools/build_repository_governance_zip.py"
+PY_COMPILE_COMMAND = "uv run --locked python -m py_compile scripts/refresh_repository_governance.py tools/build_repository_governance_zip.py tests/test_governance_domains.py"
 
 
 def load_refresh_module():
@@ -132,8 +135,36 @@ def test_build_command_documents_runtime_extension_package():
     assert BUILD_COMMAND in governance
     assert "dist/" in extension_ignore
     assert "*.zip" in extension_ignore
+    assert "tools/" in extension_ignore
     assert "dist/" in git_ignore
     assert "*.zip" in git_ignore
+
+
+def test_build_script_creates_runtime_extension_package(tmp_path):
+    output = tmp_path / "repository-governance.zip"
+
+    result = subprocess.run(
+        [sys.executable, str(BUILD_SCRIPT), "--output", str(output)],
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+
+    assert output.as_posix() in result.stdout
+    with zipfile.ZipFile(output) as archive:
+        names = set(archive.namelist())
+
+    assert names == {
+        "extension.yml",
+        "commands/speckit.repository-governance.refresh.md",
+        "scripts/refresh_repository_governance.py",
+        "templates/repository-governance-template.md",
+    }
+    assert "tools/build_repository_governance_zip.py" not in names
+    assert "tests/test_governance_domains.py" not in names
+    assert "docs/extension-governance.md" not in names
+    assert "AGENTS.md" not in names
 
 
 def test_ci_workflow_runs_governance_contract_on_supported_python_versions():
@@ -148,7 +179,7 @@ def test_ci_workflow_runs_governance_contract_on_supported_python_versions():
     assert "cancel-in-progress: true" in text
     assert 'python-version: ["3.10", "3.13"]' in text
     assert "astral-sh/setup-uv@" in text
-    assert "uv run --locked python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py" in text
+    assert PY_COMPILE_COMMAND in text
     assert "uv run --locked pytest -q" in text
 
 
@@ -165,18 +196,19 @@ def test_extension_artifact_workflow_builds_runtime_zip_and_can_open_spec_kit_pr
     assert "extensions/repository-governance" in text
     assert "extension-release-v${VERSION}" in text
     assert "gh pr create --repo bigsmartben/spec-kit" in text
-    assert "uv run --locked python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py" in text
+    assert PY_COMPILE_COMMAND in text
     assert "uv run --locked pytest -q" in text
     assert "Check workflow YAML syntax" in text
     assert "python - <<'PY'" in text
     assert "yaml.safe_load" in text
     assert "repository-governance-v${VERSION}.zip" in text
+    assert 'python3 tools/build_repository_governance_zip.py --output "${ZIP_NAME}"' in text
     assert "required_entries" in text
     assert '"extension.yml"' in text
     assert '"commands/speckit.repository-governance.refresh.md"' in text
     assert '"scripts/refresh_repository_governance.py"' in text
     assert '"templates/repository-governance-template.md"' in text
-    assert 'forbidden_prefixes = (".github/", ".git/", "docs/", "tests/", "__pycache__/")' in text
+    assert 'forbidden_prefixes = (".github/", ".git/", "docs/", "tests/", "tools/", "__pycache__/")' in text
     assert 'forbidden_entries = {"AGENTS.md", "pyproject.toml", "uv.lock", "CHANGELOG.md", ".extensionignore"}' in text
     assert "Smoke install extension on GitHub runner" in text
     assert "specify init --here --ai codex --script sh --ignore-agent-tools" in text
@@ -744,7 +776,103 @@ def test_vertical_ssot_evidence_extracts_repository_facts(tmp_path):
     assert "`src/`" in text
     assert "`tests/`" in text
     assert "- Toolchain evidence: `package.json`, `Dockerfile`" in text
-    assert "- Agent Harness evidence: `AGENTS.md`, `.mcp.json`" in text
+    assert "- Agent Harness evidence: `AGENTS.md`, `.specify/integration.json`, `.mcp.json`" in text
+
+
+def test_repository_evidence_captures_broader_repo_facts(tmp_path):
+    module = load_refresh_module()
+    root = tmp_path
+    (root / ".specify" / "extensions" / "repository-governance" / "templates").mkdir(parents=True)
+    (root / ".specify" / "extensions" / "repository-governance" / "templates" / "repository-governance-template.md").write_text(
+        TEMPLATE.read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    (root / ".specify" / "integration.json").write_text('{"default_integration": "codex"}', encoding="utf-8")
+    (root / "docs").mkdir()
+    (root / "infra").mkdir()
+    (root / "src").mkdir()
+    (root / "e2e").mkdir()
+    (root / "README.md").write_text("# Demo\n", encoding="utf-8")
+    (root / "requirements-dev.txt").write_text("pytest\n", encoding="utf-8")
+    (root / "pnpm-lock.yaml").write_text("lockfileVersion: '9.0'\n", encoding="utf-8")
+    (root / "justfile").write_text("test:\n  pytest\n", encoding="utf-8")
+    (root / "openapi.yaml").write_text("openapi: 3.0.0\n", encoding="utf-8")
+    (root / "tsconfig.build.json").write_text("{}", encoding="utf-8")
+    (root / "vite.config.ts").write_text("export default {}\n", encoding="utf-8")
+    (root / ".env.example").write_text("APP_ENV=dev\n", encoding="utf-8")
+    (root / "compose.yaml").write_text("services: {}\n", encoding="utf-8")
+    (root / "AGENTS.md").write_text("# Agent rules\n", encoding="utf-8")
+
+    created = module.ensure_memory(root)
+    text = (root / ".specify" / "memory" / "repository-governance.md").read_text(encoding="utf-8")
+
+    assert created is True
+    assert "- Project docs: `docs/`" in text
+    assert "- Spec Kit metadata: `.specify/integration.json`" in text
+    assert "- Package manifest: `requirements-dev.txt`" in text
+    assert "- Lockfiles: `pnpm-lock.yaml`" in text
+    assert "- Task runners: `justfile`" in text
+    assert "- Test paths: `e2e/`" in text
+    assert "- API contracts: `openapi.yaml`" in text
+    assert "- Build config: `vite.config.ts`, `tsconfig.build.json`" in text
+    assert "- Runtime config: `.env.example`, `compose.yaml`, `infra/`" in text
+    assert "- Toolchain evidence: `requirements-dev.txt`, `pnpm-lock.yaml`, `justfile`, `vite.config.ts`, `tsconfig.build.json`, `.env.example`, `compose.yaml`, `infra/`" in text
+
+
+def test_extension_source_facts_and_python_uv_commands_are_detected(tmp_path):
+    module = load_refresh_module()
+    root = tmp_path
+    (root / ".specify" / "extensions" / "repository-governance" / "templates").mkdir(parents=True)
+    (root / ".specify" / "extensions" / "repository-governance" / "templates" / "repository-governance-template.md").write_text(
+        TEMPLATE.read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    (root / ".specify" / "integration.json").write_text('{"default_integration": "codex"}', encoding="utf-8")
+    (root / "commands").mkdir()
+    (root / "scripts").mkdir()
+    (root / "templates").mkdir()
+    (root / "docs").mkdir()
+    (root / "tests").mkdir()
+    (root / "commands" / "speckit.repository-governance.refresh.md").write_text("# Command\n", encoding="utf-8")
+    (root / "templates" / "repository-governance-template.md").write_text("# Template\n", encoding="utf-8")
+    (root / "docs" / "extension-governance.md").write_text("# Governance\n", encoding="utf-8")
+    (root / "extension.yml").write_text("extension:\n  id: repository-governance\n", encoding="utf-8")
+    (root / ".extensionignore").write_text("tests/\n", encoding="utf-8")
+    (root / "pyproject.toml").write_text("[project]\nname = \"demo\"\n", encoding="utf-8")
+    (root / "uv.lock").write_text("version = 1\n", encoding="utf-8")
+    (root / "AGENTS.md").write_text("# Agent rules\n", encoding="utf-8")
+
+    created = module.ensure_memory(root)
+    text = (root / ".specify" / "memory" / "repository-governance.md").read_text(encoding="utf-8")
+
+    assert created is True
+    assert "- Extension assets: `extension.yml`, `.extensionignore`, `commands/`, `templates/`" in text
+    assert "- Source paths: `scripts/`, `commands/`, `templates/`" in text
+    assert "- Architecture evidence: `scripts/`, `commands/`, `templates/`" in text
+    assert "- Engineering evidence: `commands/speckit.repository-governance.refresh.md`, `templates/repository-governance-template.md`, `docs/extension-governance.md`, `pyproject.toml`" in text
+    assert "- Toolchain evidence: `pyproject.toml`, `uv.lock`, `extension.yml`, `.extensionignore`, `commands/`, `templates/`" in text
+    assert "- `uv run --locked pytest -q` -> pytest suite" in text
+
+
+def test_feature_specs_are_reported_with_file_status(tmp_path):
+    module = load_refresh_module()
+    root = tmp_path
+    (root / ".specify" / "extensions" / "repository-governance" / "templates").mkdir(parents=True)
+    (root / ".specify" / "extensions" / "repository-governance" / "templates" / "repository-governance-template.md").write_text(
+        TEMPLATE.read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    (root / ".specify" / "integration.json").write_text('{"default_integration": "codex"}', encoding="utf-8")
+    feature = root / "specs" / "001-demo"
+    feature.mkdir(parents=True)
+    (feature / "spec.md").write_text("# Spec\n", encoding="utf-8")
+    (feature / "tasks.md").write_text("# Tasks\n", encoding="utf-8")
+
+    created = module.ensure_memory(root)
+    text = (root / ".specify" / "memory" / "repository-governance.md").read_text(encoding="utf-8")
+
+    assert created is True
+    assert "- Feature specs: `specs/001-demo (spec.md:present, plan.md:missing, tasks.md:present)`" in text
 
 
 def test_ensure_memory_initializes_from_repository_evidence(tmp_path):

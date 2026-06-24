@@ -12,6 +12,7 @@ repository's executable tests.
 - `commands/speckit.repository-governance.refresh.md` declares the agent-facing command contract.
 - `templates/repository-governance-template.md` declares the stable initial governance cache and generated section shape.
 - `scripts/refresh_repository_governance.py` implements deterministic target resolution, evidence discovery, projection, and cleanup.
+- `tools/build_repository_governance_zip.py` implements deterministic runtime extension package creation.
 - `tests/test_governance_domains.py` is the executable contract for repository governance behavior and package boundaries.
 - `CHANGELOG.md` records released and unreleased behavior changes.
 
@@ -28,6 +29,7 @@ Do not add preset behavior here. Do not override core `/speckit.specify`, `/spec
 - `commands/` owns the agent-facing command contract.
 - `templates/` owns the stable generated governance shape.
 - `scripts/` owns deterministic projection behavior.
+- `tools/` owns development and release helper scripts that are excluded from runtime extension packages.
 - `tests/` owns executable expectations for all public behavior and protected boundaries.
 
 Command files may name required inputs, outputs, procedure steps, helper commands, and final reporting requirements. They must not hide durable output structure that belongs in templates or scripts.
@@ -85,6 +87,8 @@ Capture vertical SSOT evidence for:
 - Toolchain
 - Agent Harness
 
+Repository fact detection should cover repository-level docs and policy files, Spec Kit metadata, extension assets, command/template governance contracts, source and test paths, feature specs, API contracts, build configuration, runtime/deployment configuration, package manifests, lockfiles, task runners, development commands from package scripts or Python/uv test conventions, and active agent harness evidence. Keep detection deterministic, bounded to explicit file/path families, and broad enough for extension repositories as well as application repositories.
+
 Directory governance scans repository areas to depth 2. Include hidden, generated, cache, config, tool, and agent directories. Preserve the one-primary-purpose-per-directory rule and avoid injecting project-specific examples into generated governance.
 
 When a vertical SSOT is missing or incomplete, infer temporary guidance only from current repository facts and keep that guidance subordinate to explicit SSOT content.
@@ -123,9 +127,7 @@ Exclude development-only files through `.extensionignore`, including tests, loca
 Build the local extension archive with:
 
 ```bash
-rm -f dist/repository-governance.zip
-mkdir -p dist
-zip -qr dist/repository-governance.zip extension.yml commands scripts templates -x '*/__pycache__/*' '*.pyc'
+uv run python tools/build_repository_governance_zip.py
 ```
 
 Do not publish release archive URLs, bump versions, or change catalog metadata until release preparation.
@@ -145,11 +147,9 @@ Do not broaden write surfaces unless the user explicitly requests it and tests d
 After changing extension metadata, commands, scripts, templates, package boundaries, public docs, or this governance document, run:
 
 ```bash
-uv run python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py
+uv run python -m py_compile scripts/refresh_repository_governance.py tools/build_repository_governance_zip.py tests/test_governance_domains.py
 uv run pytest -q
-rm -f dist/repository-governance.zip
-mkdir -p dist
-zip -qr dist/repository-governance.zip extension.yml commands scripts templates -x '*/__pycache__/*' '*.pyc'
+uv run python tools/build_repository_governance_zip.py
 ```
 
 Run: `uv run pytest -q`.

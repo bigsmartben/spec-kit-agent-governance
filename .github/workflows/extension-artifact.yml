@@ -60,7 +60,7 @@ jobs:
           PY
 
       - name: Compile governance sources
-        run: uv run --locked python -m py_compile scripts/refresh_repository_governance.py tests/test_governance_domains.py
+        run: uv run --locked python -m py_compile scripts/refresh_repository_governance.py tools/build_repository_governance_zip.py tests/test_governance_domains.py
 
       - name: Run governance contract tests
         run: uv run --locked pytest -q
@@ -173,39 +173,7 @@ jobs:
         run: |
           set -euo pipefail
           ZIP_NAME="repository-governance-v${VERSION}.zip"
-          rm -f "${ZIP_NAME}"
-
-          python3 - <<'PY'
-          from pathlib import Path
-          from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
-          import os
-
-          version = os.environ["VERSION"]
-          zip_name = f"repository-governance-v{version}.zip"
-          include_roots = [
-              "extension.yml",
-              "commands",
-              "scripts",
-              "templates",
-          ]
-          files = []
-
-          for root in include_roots:
-              path = Path(root)
-              if path.is_file():
-                  files.append(path)
-                  continue
-              for file_path in path.rglob("*"):
-                  if file_path.is_file():
-                      files.append(file_path)
-
-          with ZipFile(zip_name, "w", compression=ZIP_DEFLATED) as archive:
-              for file_path in sorted(files, key=lambda item: item.as_posix()):
-                  info = ZipInfo(file_path.as_posix(), date_time=(1980, 1, 1, 0, 0, 0))
-                  info.compress_type = ZIP_DEFLATED
-                  info.external_attr = 0o644 << 16
-                  archive.writestr(info, file_path.read_bytes())
-          PY
+          python3 tools/build_repository_governance_zip.py --output "${ZIP_NAME}"
 
           echo "zip_name=${ZIP_NAME}" >> "${GITHUB_OUTPUT}"
           echo "zip_path=${GITHUB_WORKSPACE}/${ZIP_NAME}" >> "${GITHUB_OUTPUT}"
@@ -226,7 +194,7 @@ jobs:
               "scripts/refresh_repository_governance.py",
               "templates/repository-governance-template.md",
           }
-          forbidden_prefixes = (".github/", ".git/", "docs/", "tests/", "__pycache__/")
+          forbidden_prefixes = (".github/", ".git/", "docs/", "tests/", "tools/", "__pycache__/")
           forbidden_entries = {"AGENTS.md", "pyproject.toml", "uv.lock", "CHANGELOG.md", ".extensionignore"}
 
           with zipfile.ZipFile(os.environ["ZIP_NAME"]) as archive:
@@ -329,6 +297,7 @@ jobs:
             --exclude "*.pyc" \
             --exclude ".pytest_cache/" \
             --exclude "tests/" \
+            --exclude "tools/" \
             --exclude ".venv/" \
             --exclude "dist/" \
             --exclude "*.zip" \
