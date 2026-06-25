@@ -5,11 +5,12 @@
 ### Changed
 
 - Merge Toolchain SSOT coverage into Engineering SSOT to remove overlapping vertical ownership.
-- Remove the cache/managed-section refresh model; refresh now overwrites the active agent platform target from the current repository scan.
+- Remove the cache/managed-section model; generation now overwrites the active agent platform target from the current repository scan.
 - Make generated projections subordinate to vertical SSOT documents and source-backed repository facts on substantive conflicts.
 - Preserve `SKILL.md` trigger metadata in the scenario capability index.
 - Restrict custom `context_file` projection targets to safe agent/rules/instructions context paths.
-- Tighten generated write-boundary instructions around cache-free active-target refresh, `CONTEXT_FILES` legacy cleanup, and protected-write validation gates.
+- Tighten generated write-boundary instructions around cache-free active-target generation, `CONTEXT_FILES` legacy cleanup, and protected-write validation gates.
+- Rename the public command and packaged script from `refresh` to `generate`.
 
 ## [3.0.0] - 2026-06-25
 

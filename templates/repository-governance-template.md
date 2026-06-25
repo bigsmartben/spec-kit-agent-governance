@@ -79,7 +79,7 @@ Sync Impact Report
 ## Write Boundaries
 
 - Scope: active task only
-- Active agent platform target: generated output, overwritten on refresh.
+- Active agent platform target: generated output, overwritten on generation.
 - Legacy managed-section cleanup: non-active context files enumerated by `CONTEXT_FILES`.
 - Protected files: implementation paths, CI configuration, MCP configuration, secrets, permissions, tool settings, and arbitrary repository paths outside the resolved write surface
 - Protected-file writes: explicit user request, named matching contract or regression test, and passing validation commands

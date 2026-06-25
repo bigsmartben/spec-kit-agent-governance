@@ -60,7 +60,7 @@ jobs:
           PY
 
       - name: Compile governance sources
-        run: uv run --locked python -m py_compile scripts/refresh_repository_governance.py tools/build_repository_governance_zip.py tests/test_governance_domains.py
+        run: uv run --locked python -m py_compile scripts/generate_repository_governance.py tools/build_repository_governance_zip.py tests/test_governance_domains.py
 
       - name: Run governance contract tests
         run: uv run --locked pytest -q
@@ -190,8 +190,8 @@ jobs:
 
           required_entries = {
               "extension.yml",
-              "commands/speckit.repository-governance.refresh.md",
-              "scripts/refresh_repository_governance.py",
+              "commands/speckit.repository-governance.generate.md",
+              "scripts/generate_repository_governance.py",
               "templates/repository-governance-template.md",
           }
           forbidden_prefixes = (".github/", ".git/", "docs/", "tests/", "tools/", "__pycache__/")
@@ -232,7 +232,7 @@ jobs:
           specify extension add --dev "$GITHUB_WORKSPACE"
           test -f .specify/extensions/repository-governance/extension.yml
           test -f .specify/extensions/repository-governance/templates/repository-governance-template.md
-          test -f .agents/skills/speckit-repository-governance-refresh/SKILL.md
+          test -f .agents/skills/speckit-repository-governance-generate/SKILL.md
 
       - name: Upload extension artifact
         uses: actions/upload-artifact@v7
@@ -334,7 +334,7 @@ jobs:
           PY
 
           python3 -m pip install -e '.[test]'
-          python3 -m py_compile extensions/repository-governance/scripts/refresh_repository_governance.py
+          python3 -m py_compile extensions/repository-governance/scripts/generate_repository_governance.py
           python3 -m pytest -q \
             tests/test_arch_templates.py \
             tests/integrations/test_cli.py::TestGitExtensionOptIn::test_community_extensions_and_workflow_preset_auto_installed \
@@ -361,7 +361,7 @@ jobs:
             echo "- Update extensions/catalog.json metadata."
             echo
             echo "## Test Plan"
-            echo "- [x] python3 -m py_compile extensions/repository-governance/scripts/refresh_repository_governance.py"
+            echo "- [x] python3 -m py_compile extensions/repository-governance/scripts/generate_repository_governance.py"
             echo "- [x] python3 -m pytest -q tests/test_arch_templates.py tests/integrations/test_cli.py::TestGitExtensionOptIn::test_community_extensions_and_workflow_preset_auto_installed tests/integrations/test_cli.py::TestGitExtensionOptIn::test_no_git_keeps_community_defaults"
             echo "- [x] python3 -m pytest -q tests/test_presets.py -k workflow_preset_integration_release_payload_contract"
             echo "- [x] python3 -m json.tool extensions/catalog.json >/dev/null"

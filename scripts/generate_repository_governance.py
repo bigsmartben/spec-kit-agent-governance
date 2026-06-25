@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate or refresh Spec Kit project-governance projections."""
+"""Generate Spec Kit project-governance projections."""
 
 from __future__ import annotations
 
@@ -115,7 +115,7 @@ REPOSITORY_POLICY_FILES = [
 EXTENSION_ASSET_FILES = ["extension.yml", ".extensionignore"]
 EXTENSION_ASSET_DIRS = ["commands", "templates"]
 EXTENSION_CONTRACT_FILES = [
-    "commands/speckit.repository-governance.refresh.md",
+    "commands/speckit.repository-governance.generate.md",
     "templates/repository-governance-template.md",
     "docs/extension-governance.md",
 ]
@@ -606,7 +606,7 @@ def render_projection(root: Path, target: Path, state: dict[str, Any], init_opti
         "- Extension identity: repository-governance.",
         f"- Target: {rel(root, target)}",
         f"- Active integration: {default_key}",
-        "- Refresh source: current repository scan.",
+        "- Projection source: current repository scan.",
         "",
         "## Scope",
         "- Project-governance projection for the active agent platform target",

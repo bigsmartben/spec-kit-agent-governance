@@ -10,8 +10,8 @@ from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 RUNTIME_ENTRIES = [
     Path("extension.yml"),
-    Path("commands/speckit.repository-governance.refresh.md"),
-    Path("scripts/refresh_repository_governance.py"),
+    Path("commands/speckit.repository-governance.generate.md"),
+    Path("scripts/generate_repository_governance.py"),
     Path("templates/repository-governance-template.md"),
 ]
 

@@ -1,7 +1,7 @@
 [project]
 name = "spec-kit-agent-governance"
 version = "3.0.0"
-description = "Spec Kit extension for refreshing project-governance projections"
+description = "Spec Kit extension for generating project-governance projections"
 requires-python = ">=3.10"
 dependencies = []
 

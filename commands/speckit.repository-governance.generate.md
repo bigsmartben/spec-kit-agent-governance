@@ -1,8 +1,8 @@
 ---
-description: "Refresh the active project-governance projection"
+description: "Generate the active project-governance projection"
 ---
 
-# Project Governance Projection Refresh
+# Project Governance Projection Generation
 
 ## Input
 
@@ -45,7 +45,7 @@ $ARGUMENTS
 8. Run:
 
    ```bash
-   uv run python .specify/extensions/repository-governance/scripts/refresh_repository_governance.py
+   uv run python .specify/extensions/repository-governance/scripts/generate_repository_governance.py
    ```
 
 ## Report

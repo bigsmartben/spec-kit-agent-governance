@@ -1,6 +1,6 @@
 # Spec Kit Repository Governance
 
-Refresh project-governance projections for the active Spec Kit agent platform target.
+Generate project-governance projections for the active Spec Kit agent platform target.
 
 ## Output
 
@@ -18,8 +18,8 @@ Refresh project-governance projections for the active Spec Kit agent platform ta
 - Analyze repository areas to depth 2 only.
 - Include hidden and cache directories in repository area governance.
 - Enforce one primary responsibility per directory.
-- Overwrite the active agent platform target on refresh.
-- Refresh repository evidence from the current repository state on every run.
+- Overwrite the active agent platform target on generation.
+- Generate repository evidence from the current repository state on every run.
 - Review only the active agent platform target.
 - Remove legacy managed sections only from non-active context files enumerated by `CONTEXT_FILES`.
 
@@ -38,13 +38,13 @@ specify extension add --dev /path/to/spec-kit-agent-governance
 ## Run
 
 ```text
-/speckit.repository-governance.refresh
+/speckit.repository-governance.generate
 ```
 
 Helper:
 
 ```bash
-uv run python .specify/extensions/repository-governance/scripts/refresh_repository_governance.py
+uv run python .specify/extensions/repository-governance/scripts/generate_repository_governance.py
 ```
 
 ## Build
@@ -56,8 +56,8 @@ uv run python tools/build_repository_governance_zip.py
 ## Files
 
 - `extension.yml`
-- `commands/speckit.repository-governance.refresh.md`
-- `scripts/refresh_repository_governance.py`
+- `commands/speckit.repository-governance.generate.md`
+- `scripts/generate_repository_governance.py`
 - `templates/repository-governance-template.md`
 
 ## Vertical SSOT Coverage
@@ -84,6 +84,6 @@ Repository-local `SKILL.md` files are indexed by declared name, description, tri
 ## Verify
 
 ```bash
-uv run --locked python -m py_compile scripts/refresh_repository_governance.py tools/build_repository_governance_zip.py tests/test_governance_domains.py
+uv run --locked python -m py_compile scripts/generate_repository_governance.py tools/build_repository_governance_zip.py tests/test_governance_domains.py
 uv run --locked pytest -q
 ```

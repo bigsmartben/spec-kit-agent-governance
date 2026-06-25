@@ -4,7 +4,7 @@ extension:
   id: repository-governance
   name: "Repository Governance"
   version: "3.0.0"
-  description: "Refresh project-governance projections from Spec Kit metadata"
+  description: "Generate project-governance projections from Spec Kit metadata"
   author: "bigben"
   repository: "https://github.com/bigsmartben/spec-kit-agent-governance"
   homepage: "https://github.com/bigsmartben/spec-kit-agent-governance"
@@ -18,25 +18,25 @@ requires:
 
 provides:
   commands:
-    - name: "speckit.repository-governance.refresh"
-      file: "commands/speckit.repository-governance.refresh.md"
-      description: "Refresh the active project-governance projection"
+    - name: "speckit.repository-governance.generate"
+      file: "commands/speckit.repository-governance.generate.md"
+      description: "Generate the active project-governance projection"
 
 hooks:
   after_constitution:
-    command: "speckit.repository-governance.refresh"
+    command: "speckit.repository-governance.generate"
     optional: true
-    prompt: "Refresh project-governance projection after constitution changes?"
-    description: "Refreshes the active agent platform target"
+    prompt: "Generate project-governance projection after constitution changes?"
+    description: "Generates the active agent platform target"
   after_plan:
-    command: "speckit.repository-governance.refresh"
+    command: "speckit.repository-governance.generate"
     optional: true
-    prompt: "Refresh project-governance projection after planning?"
+    prompt: "Generate project-governance projection after planning?"
     description: "Keeps the active agent platform target aligned"
   after_tasks:
-    command: "speckit.repository-governance.refresh"
+    command: "speckit.repository-governance.generate"
     optional: true
-    prompt: "Refresh project-governance projection after task generation?"
+    prompt: "Generate project-governance projection after task generation?"
     description: "Keeps the active agent platform target aligned"
 
 tags:

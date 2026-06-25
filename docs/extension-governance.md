@@ -9,9 +9,9 @@ repository's executable tests.
 
 - `extension.yml` declares extension metadata, command registration, hooks, tool requirements, and package discovery tags.
 - `README.md` declares the user-facing contract, install flow, command entrypoint, scope, and verification command.
-- `commands/speckit.repository-governance.refresh.md` declares the agent-facing command contract.
+- `commands/speckit.repository-governance.generate.md` declares the agent-facing command contract.
 - `templates/repository-governance-template.md` declares the stable projection template and generated file shape.
-- `scripts/refresh_repository_governance.py` implements deterministic target resolution, evidence discovery, project-governance projection, and cleanup.
+- `scripts/generate_repository_governance.py` implements deterministic target resolution, evidence discovery, project-governance projection, and cleanup.
 - `tools/build_repository_governance_zip.py` implements deterministic runtime extension package creation.
 - `tests/test_governance_domains.py` is the executable contract for project-governance projection behavior and package boundaries.
 - `CHANGELOG.md` records released and unreleased behavior changes.
@@ -20,7 +20,7 @@ repository's executable tests.
 
 Extensions add new Spec Kit capabilities; presets override or compose existing Spec Kit workflow commands and templates. This repository is an extension, not a preset.
 
-Use extension changes for project-governance projection refresh behavior, target file generation, integration metadata handling, active agent platform projection, lifecycle hooks, and packaged runtime assets.
+Use extension changes for project-governance projection generation behavior, target file generation, integration metadata handling, active agent platform projection, lifecycle hooks, and packaged runtime assets.
 
 Do not add preset behavior here. Do not override core `/speckit.specify`, `/speckit.plan`, `/speckit.tasks`, `/speckit.implement`, or their templates. Do not add project implementation workflow ownership, external orchestration runners, or project implementation artifact generation.
 
@@ -44,7 +44,7 @@ Script files own behavior that must be repeatable without agent interpretation: 
 - File mode: full generated projection file.
 - Cache: none.
 - The active agent platform target is the only review target.
-- Existing active target content is overwritten on refresh.
+- Existing active target content is overwritten on generation.
 - Stale legacy marker blocks in non-active context files enumerated by `CONTEXT_FILES` may be removed.
 - Legacy `SPECKIT GOVERNANCE` sections are migration cleanup targets, not the long-term projection authority.
 
@@ -105,9 +105,9 @@ MCP configuration differs across agent platforms. Repository MCP config files ar
 
 ## Hooks And Runtime Requirements
 
-Lifecycle hooks in `extension.yml` must call the namespaced command `speckit.repository-governance.refresh`.
+Lifecycle hooks in `extension.yml` must call the namespaced command `speckit.repository-governance.generate`.
 
-Hook prompts must describe project-governance projection refresh behavior, not project implementation behavior. Optional hooks after constitution, plan, and tasks are acceptable when they keep the active agent platform target aligned.
+Hook prompts must describe project-governance projection generation behavior, not project implementation behavior. Optional hooks after constitution, plan, and tasks are acceptable when they keep the active agent platform target aligned.
 
 Runtime requirements must stay explicit in `extension.yml`. This extension uses `uv` for the packaged helper invocation and local verification.
 
@@ -145,7 +145,7 @@ Do not broaden write surfaces unless the user explicitly requests it and tests d
 After changing extension metadata, commands, scripts, templates, package boundaries, public docs, or this governance document, run:
 
 ```bash
-uv run python -m py_compile scripts/refresh_repository_governance.py tools/build_repository_governance_zip.py tests/test_governance_domains.py
+uv run python -m py_compile scripts/generate_repository_governance.py tools/build_repository_governance_zip.py tests/test_governance_domains.py
 uv run pytest -q
 uv run python tools/build_repository_governance_zip.py
 ```

@@ -4,8 +4,8 @@
 
 - Metadata: `extension.yml`
 - User contract: `README.md`
-- Command contract: `commands/speckit.repository-governance.refresh.md`
-- Projection: `scripts/refresh_repository_governance.py`
+- Command contract: `commands/speckit.repository-governance.generate.md`
+- Projection: `scripts/generate_repository_governance.py`
 - Package builder: `tools/build_repository_governance_zip.py`
 - Cache template: `templates/repository-governance-template.md`
 - Extension governance: `docs/extension-governance.md`
@@ -36,7 +36,7 @@
 ## Commands
 
 ```bash
-uv run python -m py_compile scripts/refresh_repository_governance.py tools/build_repository_governance_zip.py tests/test_governance_domains.py
+uv run python -m py_compile scripts/generate_repository_governance.py tools/build_repository_governance_zip.py tests/test_governance_domains.py
 uv run pytest -q
 uv run python tools/build_repository_governance_zip.py
 ```
