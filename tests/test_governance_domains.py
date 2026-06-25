@@ -34,13 +34,12 @@ def load_refresh_module():
 
 
 def assert_repository_governance_framework(text: str) -> None:
-    assert "Repository Governance Framework" in text
+    assert "Project Governance Projection Framework" in text
     assert "Vertical SSOT Registry" in text
     assert "Architecture SSOT" in text
     assert "Engineering SSOT" in text
     assert "Code Style SSOT" in text
     assert "Directory Structure SSOT" in text
-    assert "Toolchain SSOT" in text
     assert "Agent Harness SSOT" in text
     assert "architecture methodology: owned by Architecture SSOT" in text
     assert "4+1" not in text
@@ -52,7 +51,6 @@ def assert_vertical_ssot_evidence(text: str) -> None:
     assert "- Engineering evidence:" in text
     assert "- Code Style evidence:" in text
     assert "- Directory Structure evidence:" in text
-    assert "- Toolchain evidence:" in text
     assert "- Agent Harness evidence:" in text
 
 
@@ -66,19 +64,29 @@ def test_template_declares_final_outputs_without_placeholders():
     text = TEMPLATE.read_text(encoding="utf-8")
 
     assert "## Final Output" in text
-    assert "active repository governance file" in text
-    assert "cache: internal" in text
+    assert "active agent platform project-governance projection" in text
+    assert "generated active agent platform target file" in text
     assert "TODO(" not in text
     final_outputs = text.split("## Final Output", 1)[1].split("## Scope", 1)[0]
-    assert "- active repository governance file" in final_outputs
-    assert "- cache: internal" in final_outputs
+    assert "- active agent platform project-governance projection" in final_outputs
+    assert "- generated active agent platform target file" in final_outputs
 
 
-def test_template_protects_refresh_markers_and_scopes_broad_updates():
+def test_template_defines_overwrite_projection_and_scopes_broad_updates():
     text = TEMPLATE.read_text(encoding="utf-8")
 
-    assert "`<!-- SPECKIT GOVERNANCE START -->`" in text
-    assert "`<!-- SPECKIT GOVERNANCE END -->`" in text
+    assert "## Authority" in text
+    assert "## SSOT Read Order" not in text
+    assert "## Repository Workflow" in text
+    assert "Active agent platform target: generated output, overwritten on refresh." in text
+    assert "Active projection is generated routing guidance and is subordinate to explicit vertical SSOT documents or source-backed repository facts on substantive conflicts." in text
+    assert "Protected-file writes: explicit user request, named matching contract or regression test, and passing validation commands" in text
+    assert "Legacy managed-section cleanup: non-active context files enumerated by `CONTEXT_FILES`." in text
+    assert "Mutation: explicit user intent with target, action, and expected effect." in text
+    assert "`<!-- PROJECT GOVERNANCE START -->`" not in text
+    assert "`<!-- PROJECT GOVERNANCE END -->`" not in text
+    assert "`<!-- SPECKIT GOVERNANCE START -->`" not in text
+    assert "`<!-- SPECKIT GOVERNANCE END -->`" not in text
     assert "## Agent Platform Adapter" in text
     assert "## Capability Index" in text
     assert "Repository Capability: abstract repository-local skill and MCP evidence into scenario capabilities." in text
@@ -92,11 +100,22 @@ def test_template_protects_refresh_markers_and_scopes_broad_updates():
 def test_readme_positions_extension_as_repository_governance_framework():
     text = README.read_text(encoding="utf-8")
 
-    assert "Generate the active Repository Governance Framework SSOT section." in text
-    assert "Active target file from Spec Kit integration metadata." in text
+    assert "Refresh project-governance projections for the active Spec Kit agent platform target." in text
+    assert "Active agent platform target from safe `context_file` override or Spec Kit integration metadata." in text
     assert "Project agent platform adapter rules from Spec Kit integration metadata." in text
     assert "Build a scenario capability index for repository-local skills and MCP-backed external tool evidence." in text
+    assert "## Vertical SSOT Coverage" in text
+    assert "## Evidence Coverage" in text
+    vertical_coverage = text.split("## Vertical SSOT Coverage", 1)[1].split("## Evidence Coverage", 1)[0]
+    evidence_coverage = text.split("## Evidence Coverage", 1)[1].split("## Agent Adapter", 1)[0]
+    assert "Architecture SSOT evidence" in vertical_coverage
+    assert "Agent Harness SSOT evidence" in vertical_coverage
+    assert "Repository fact evidence" not in vertical_coverage
+    assert "Development command evidence" not in vertical_coverage
+    assert "Repository fact evidence" in evidence_coverage
+    assert "Development command evidence" in evidence_coverage
     assert "MCP config files are reported as candidates and evidence only" in text
+    assert "SPECKIT GOVERNANCE" not in text
     assert "Example:" not in text
     assert "Codex `AGENTS.md`" not in text
     assert "not a general-purpose `AGENTS.md` initializer" not in text
@@ -111,13 +130,16 @@ def test_extension_governance_defines_repository_extension_contract():
     assert "Extensions add new Spec Kit capabilities; presets override or compose existing Spec Kit workflow commands and templates." in text
     assert "This repository is an extension, not a preset." in text
     assert "`commands/` owns the agent-facing command contract." in text
-    assert "`templates/` owns the stable generated governance shape." in text
-    assert "`scripts/` owns deterministic projection behavior." in text
-    assert "The extension projects repository capabilities through a Spec Kit Agent Adapter layer:" in text
+    assert "`templates/` owns the stable projection template and generated file shape." in text
+    assert "`scripts/` owns deterministic project-governance projection behavior." in text
+    assert "The extension projects project-governance and repository capabilities through a Spec Kit Agent Adapter layer:" in text
     assert "MCP configuration differs across agent platforms." in text
-    assert "The active target file is the only review target." in text
+    assert "The active agent platform target is the only review target." in text
     assert "Keep `CONTEXT_FILES` mappings explicit." in text
-    assert "Constrain target paths with `safe_project_path`." in text
+    assert "Constrain mapped target paths with `safe_project_path`." in text
+    assert "Stale legacy marker blocks in non-active context files enumerated by `CONTEXT_FILES` may be removed." in text
+    assert "Protected writes require an explicit user request, a named matching contract or regression test, and passing validation commands:" in text
+    assert "Do not accept protected implementation, CI, MCP, secrets, permissions, or arbitrary repository files as custom projection targets." in text
     assert "Run: `uv run pytest -q`." in text
 
 
@@ -233,14 +255,16 @@ def test_usage_is_single_command_generate_or_update_flow():
     readme = README.read_text(encoding="utf-8")
     command = COMMAND.read_text(encoding="utf-8")
 
-    assert "Generate missing target governance file." in readme
-    assert "Update existing target governance file." in readme
+    assert "Generate the resolved active agent platform target when missing." in readme
+    assert "Update existing active target project-governance projections." in readme
     assert "review and edit the memory file" not in readme
     assert "run the refresh command again" not in readme
-    assert "Review only the active target file." in readme
-    assert "Preserve managed markers verbatim." in readme
-    assert "Use existing managed section as refresh source." in command
-    assert "Preserve managed markers verbatim." in command
+    assert "Review only the active agent platform target." in readme
+    assert "Overwrite the active agent platform target on refresh." in readme
+    assert "Remove legacy managed sections only from non-active context files enumerated by `CONTEXT_FILES`." in readme
+    assert "Refresh repository evidence from the current repository state on every run." in readme
+    assert "Use existing managed section as refresh source." not in command
+    assert "Preserve managed markers verbatim." not in command
     assert "generated or updated" in command
     assert "inserted or replaced" not in command
 
@@ -257,7 +281,7 @@ def test_write_projection_reports_generated_or_updated(tmp_path):
     assert updated == "updated"
 
 
-def test_cli_report_prioritizes_active_target_and_labels_cache_internal(tmp_path):
+def test_cli_report_prioritizes_active_target_and_current_evidence(tmp_path):
     extension_root = tmp_path / ".specify" / "extensions" / "repository-governance"
     (extension_root / "scripts").mkdir(parents=True)
     (extension_root / "templates").mkdir(parents=True)
@@ -278,15 +302,16 @@ def test_cli_report_prioritizes_active_target_and_labels_cache_internal(tmp_path
     lines = result.stdout.splitlines()
 
     assert result.returncode == 0, result.stderr
-    assert lines[0] == "Target governance file: AGENTS.md"
-    assert lines[1] == "Governance file: generated"
+    assert lines[0] == "Target agent platform file: AGENTS.md"
+    assert lines[1] == "Project-governance projection: generated"
     assert "Review target: AGENTS.md" in lines
-    assert any(line.startswith("Internal initialization cache: ") for line in lines)
+    assert any(line.startswith("Repository evidence: ") for line in lines)
+    assert not any(line.startswith("Internal initialization cache: ") for line in lines)
     assert not any(line.startswith("Source memory: ") for line in lines)
     assert not any(line.startswith("Memory: ") for line in lines)
 
 
-def test_write_projection_preserves_user_authored_content(tmp_path):
+def test_write_projection_overwrites_active_target(tmp_path):
     module = load_refresh_module()
     target = tmp_path / "AGENTS.md"
     target.write_text(
@@ -294,28 +319,23 @@ def test_write_projection_preserves_user_authored_content(tmp_path):
             [
                 "# Project Instructions",
                 "",
-                "Keep this user-authored introduction.",
+                "Old generated introduction.",
                 "",
                 module.MARKER_START,
                 "old generated content",
                 module.MARKER_END,
                 "",
-                "Keep this user-authored footer.",
+                "Old generated footer.",
             ]
         ),
         encoding="utf-8",
     )
 
-    action = module.write_projection(
-        target,
-        "\n".join([module.MARKER_START, "new generated content", module.MARKER_END, ""]),
-    )
+    action = module.write_projection(target, "new generated content\n")
     text = target.read_text(encoding="utf-8")
 
     assert action == "updated"
-    assert "Keep this user-authored introduction." in text
-    assert "Keep this user-authored footer." in text
-    assert "new generated content" in text
+    assert text == "new generated content\n"
     assert "old generated content" not in text
 
 
@@ -344,13 +364,73 @@ def test_remove_stale_sections_when_active_target_changes(tmp_path):
         tmp_path,
         active_target,
         {},
-        {"default_integration": "claude", "installed_integrations": ["codex", "claude"]},
     )
     old_text = old_target.read_text(encoding="utf-8")
 
     assert "User content stays." in old_text
     assert module.MARKER_START not in old_text
     assert "stale generated content" not in old_text
+
+
+def test_remove_stale_sections_excludes_custom_context_file(tmp_path):
+    module = load_refresh_module()
+    custom_target = tmp_path / "custom" / "AGENT_RULES.md"
+    active_target = tmp_path / "CLAUDE.md"
+    custom_target.parent.mkdir()
+    custom_target.write_text(
+        "\n".join(
+            [
+                "# Custom Context",
+                "",
+                module.MARKER_START,
+                "custom context managed content",
+                module.MARKER_END,
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    active_target.write_text("# Claude Context\n", encoding="utf-8")
+
+    module.remove_stale_sections(
+        tmp_path,
+        active_target,
+        {"context_file": "custom/AGENT_RULES.md"},
+    )
+    custom_text = custom_target.read_text(encoding="utf-8")
+
+    assert module.MARKER_START in custom_text
+    assert "custom context managed content" in custom_text
+
+
+def test_refresh_replaces_legacy_speckit_markers(tmp_path):
+    module = load_refresh_module()
+    target = tmp_path / "AGENTS.md"
+    target.write_text(
+        "\n".join(
+            [
+                "# Existing Context",
+                "",
+                module.LEGACY_MARKER_START,
+                "legacy generated content",
+                module.LEGACY_MARKER_END,
+                "",
+                "User footer.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    action = module.write_projection(target, "new project-governance projection\n")
+    text = target.read_text(encoding="utf-8")
+
+    assert action == "updated"
+    assert text == "new project-governance projection\n"
+    assert module.MARKER_START not in text
+    assert module.MARKER_END not in text
+    assert module.LEGACY_MARKER_START not in text
+    assert "legacy generated content" not in text
+    assert "User footer." not in text
 
 
 def test_resolve_target_uses_spec_kit_integration_metadata(tmp_path):
@@ -366,20 +446,122 @@ def test_resolve_target_uses_spec_kit_integration_metadata(tmp_path):
     ) == tmp_path / "custom/AGENT_RULES.md"
 
 
-def test_projection_defines_repository_governance_framework_ssot(tmp_path):
+def test_safe_project_path_rejects_absolute_and_traversal_paths(tmp_path):
+    module = load_refresh_module()
+
+    assert module.safe_project_path(tmp_path, "../escape.md") is None
+    assert module.safe_project_path(tmp_path, str(tmp_path / "AGENTS.md")) is None
+    assert module.safe_project_path(tmp_path, "") is None
+    assert module.safe_project_path(tmp_path, None) is None
+
+
+def test_custom_context_file_target_is_limited_to_agent_context_paths(tmp_path):
+    module = load_refresh_module()
+
+    assert module.resolve_target(
+        tmp_path,
+        {"default_integration": "codex"},
+        {"context_file": "README.md"},
+    ) == tmp_path / "AGENTS.md"
+    assert module.resolve_target(
+        tmp_path,
+        {"default_integration": "codex"},
+        {"context_file": ".github/workflows/ci.yml"},
+    ) == tmp_path / "AGENTS.md"
+    assert module.resolve_target(
+        tmp_path,
+        {"default_integration": "codex"},
+        {"context_file": ".mcp.json"},
+    ) == tmp_path / "AGENTS.md"
+    assert module.resolve_target(
+        tmp_path,
+        {"default_integration": "codex"},
+        {"context_file": str(tmp_path / "custom" / "AGENT_RULES.md")},
+    ) == tmp_path / "AGENTS.md"
+    assert module.resolve_target(
+        tmp_path,
+        {"default_integration": "codex"},
+        {"context_file": "../AGENT_RULES.md"},
+    ) == tmp_path / "AGENTS.md"
+
+
+def test_read_json_accepts_utf8_bom_in_spec_kit_metadata(tmp_path):
+    module = load_refresh_module()
+    metadata = tmp_path / "integration.json"
+    metadata.write_text('\ufeff{"default_integration":"claude"}', encoding="utf-8")
+
+    state = module.read_json(metadata)
+
+    assert state == {"default_integration": "claude"}
+    assert module.resolve_target(tmp_path, state, {}) == tmp_path / "CLAUDE.md"
+
+
+def test_resolve_target_falls_back_to_generic_context_mapping(tmp_path):
+    module = load_refresh_module()
+
+    assert module.CONTEXT_FILES["generic"] == "AGENTS.md"
+    assert module.resolve_target(tmp_path, {}, {}) == tmp_path / module.CONTEXT_FILES["generic"]
+    assert module.resolve_target(tmp_path, {"default_integration": "unknown-agent"}, {}) == tmp_path / module.CONTEXT_FILES["generic"]
+
+
+def test_projection_ignores_legacy_cache_terms(tmp_path):
     module = load_refresh_module()
     root = tmp_path
     memory = root / ".specify" / "memory"
     memory.mkdir(parents=True)
-    (memory / "repository-governance.md").write_text(TEMPLATE.read_text(encoding="utf-8"), encoding="utf-8")
+    (memory / "repository-governance.md").write_text(
+        "\n".join(
+            [
+                "# Repository Governance Framework Cache",
+                "",
+                "## SSOT Read Order",
+                "",
+                "1. Current user instruction",
+                "2. Safety and permission constraints",
+                "3. Active `SPECKIT GOVERNANCE` section",
+                "4. Vertical SSOT documents",
+                "",
+                "## Write Boundaries",
+                "",
+                "- Preserve managed markers verbatim: `<!-- SPECKIT GOVERNANCE START -->` and `<!-- SPECKIT GOVERNANCE END -->`.",
+                "- Protected-file writes: explicit user request only.",
+            ]
+        ),
+        encoding="utf-8",
+    )
 
-    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, False)
+    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
+
+    assert "SPECKIT GOVERNANCE" not in projection
+    assert "Repository Governance Framework Cache" not in projection
+    assert "3. Vertical SSOT documents" in projection
+    assert "5. Active `PROJECT GOVERNANCE` projection" in projection
+    assert "`<!-- PROJECT GOVERNANCE START -->`" not in projection
+    assert "`<!-- PROJECT GOVERNANCE END -->`" not in projection
+    assert "Protected-file writes: explicit user request, named matching contract or regression test, and passing validation commands." in projection
+    assert "Legacy managed-section cleanup is limited to non-active context files enumerated by `CONTEXT_FILES`." in projection
+    assert "Protected-file writes: explicit user request only." not in projection
+
+
+def test_projection_defines_repository_governance_framework_ssot(tmp_path):
+    module = load_refresh_module()
+    root = tmp_path
+
+    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
 
     assert_repository_governance_framework(projection)
     assert_vertical_ssot_evidence(projection)
     assert "Constitution" not in projection
-    assert "## Repository Governance" in projection
-    assert "- SSOT: this managed section." in projection
+    assert "# Project Governance Projection" in projection
+    assert "- Projection: active agent platform target file." in projection
+    assert "- Domain: project-governance." in projection
+    assert "- Extension identity: repository-governance." in projection
+    assert "Active projection is generated routing guidance and is subordinate to explicit vertical SSOT documents or source-backed repository facts on substantive conflicts." in projection
+    assert "Protected-file writes: explicit user request, named matching contract or regression test, and passing validation commands" in projection
+    assert "Review and report only the active agent platform target" in projection
+    assert "## Repository Workflow" in projection
+    assert "- Classify task type before changing files." in projection
+    assert "SPECKIT GOVERNANCE" not in projection
     assert "Repository governance SSOT: `.specify/memory/repository-governance.md`" not in projection
     assert "`.specify/memory/repository-governance.md` is the SSOT" not in projection
     assert "Generated Governance Boundaries" not in projection
@@ -393,48 +575,19 @@ def test_projection_defines_repository_governance_framework_ssot(tmp_path):
 def test_projection_includes_repository_evidence_and_development_commands(tmp_path):
     module = load_refresh_module()
     root = tmp_path
-    memory = root / ".specify" / "memory"
-    memory.mkdir(parents=True)
-    (memory / "repository-governance.md").write_text(
-        "\n".join(
-            [
-                "# Repository Governance",
-                "",
-                "## Repository Evidence",
-                "",
-                "- README: `README.md`",
-                "- Source paths: `src/`",
-                "- Test paths: `tests/`",
-                "",
-                "## Vertical SSOT Evidence",
-                "",
-                "- Architecture evidence: `src/`",
-                "- Engineering evidence: `package.json`",
-                "- Code Style evidence: `eslint.config.js`",
-                "- Directory Structure evidence: `src/`",
-                "- Toolchain evidence: `package.json`",
-                "- Agent Harness evidence: `AGENTS.md`",
-                "",
-                "## Development Commands",
-                "",
-                "- `npm test` -> `vitest run`",
-                "- manifest commands over ad hoc equivalents",
-                "",
-                "## Write Boundaries",
-                "",
-                "- Preserve user-authored content outside managed markers.",
-            ]
-        ),
-        encoding="utf-8",
-    )
+    (root / "README.md").write_text("# Demo\n", encoding="utf-8")
+    (root / "src").mkdir()
+    (root / "tests").mkdir()
+    (root / "package.json").write_text('{"scripts":{"test":"vitest run"}}', encoding="utf-8")
 
-    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, False)
+    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
 
     assert "## Repository Evidence" in projection
     assert "- README: `README.md`" in projection
     assert "- Source paths: `src/`" in projection
     assert "## Vertical SSOT Evidence" in projection
     assert "- Architecture evidence: `src/`" in projection
+    assert "- Engineering evidence: `package.json`" in projection
     assert "## Development Commands" in projection
     assert "- `npm test` -> `vitest run`" in projection
 
@@ -457,8 +610,7 @@ def test_repository_areas_scan_two_directory_levels_including_hidden_and_cache_d
     )
     (root / ".specify" / "integration.json").write_text('{"default_integration": "codex"}', encoding="utf-8")
 
-    module.ensure_memory(root)
-    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, True)
+    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
     areas = projection.split("## Repository Areas", 1)[1].split("## Development Commands", 1)[0]
 
     assert "## Repository Areas" in projection
@@ -472,7 +624,6 @@ def test_repository_areas_scan_two_directory_levels_including_hidden_and_cache_d
     assert "- `.git/hooks/`: change with parent area `.git/`." in areas
     assert "- `.specify/`: review before changing linked areas." in areas
     assert "- `.specify/extensions/`: change with parent area `.specify/`." in areas
-    assert "- `.specify/memory/`: change with parent area `.specify/`." in areas
     assert "- `node_modules/`: review before changing linked areas." in areas
     assert "- `node_modules/package/`: change with parent area `node_modules/`." in areas
     assert "src/pipeline/deep" not in areas
@@ -483,11 +634,8 @@ def test_repository_areas_scan_two_directory_levels_including_hidden_and_cache_d
 def test_projection_includes_generic_directory_governance(tmp_path):
     module = load_refresh_module()
     root = tmp_path
-    memory = root / ".specify" / "memory"
-    memory.mkdir(parents=True)
-    (memory / "repository-governance.md").write_text(TEMPLATE.read_text(encoding="utf-8"), encoding="utf-8")
 
-    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, False)
+    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
     directory_governance = projection.split("## Directory Governance", 1)[1].split("## Development Commands", 1)[0]
 
     assert "## Directory Governance" in projection
@@ -507,9 +655,6 @@ def test_projection_includes_generic_directory_governance(tmp_path):
 def test_projection_includes_agent_adapter_and_capability_index(tmp_path):
     module = load_refresh_module()
     root = tmp_path
-    memory = root / ".specify" / "memory"
-    memory.mkdir(parents=True)
-    (memory / "repository-governance.md").write_text(TEMPLATE.read_text(encoding="utf-8"), encoding="utf-8")
     skill_dir = root / ".codex" / "skills" / "review"
     skill_dir.mkdir(parents=True)
     (skill_dir / "SKILL.md").write_text(
@@ -518,6 +663,7 @@ def test_projection_includes_agent_adapter_and_capability_index(tmp_path):
                 "---",
                 "name: code-review",
                 "description: Review pull requests for behavioral regressions and missing tests.",
+                "trigger: when reviewing PR comments or changes",
                 "---",
                 "",
                 "# Code Review",
@@ -529,7 +675,7 @@ def test_projection_includes_agent_adapter_and_capability_index(tmp_path):
     (root / "docs").mkdir()
     (root / "docs" / "mcp-notes.md").write_text("notes about mcp usage", encoding="utf-8")
 
-    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, False)
+    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
 
     assert "## Agent Platform Adapter" in projection
     assert "- Active integration: codex" in projection
@@ -539,6 +685,7 @@ def test_projection_includes_agent_adapter_and_capability_index(tmp_path):
     assert "## Capability Index" in projection
     assert "- Repository capability: code-review" in projection
     assert "Scenario: Review pull requests for behavioral regressions and missing tests." in projection
+    assert "Trigger: when reviewing PR comments or changes" in projection
     assert "Source: `.codex/skills/review/SKILL.md`." in projection
     assert "- Repository capability: MCP-backed external tools" in projection
     assert "Sources: MCP config candidates are evidence, not proof of active tools: `.mcp.json`." in projection
@@ -549,12 +696,9 @@ def test_projection_includes_agent_adapter_and_capability_index(tmp_path):
 def test_unknown_agent_adapter_does_not_claim_mcp_config_support(tmp_path):
     module = load_refresh_module()
     root = tmp_path
-    memory = root / ".specify" / "memory"
-    memory.mkdir(parents=True)
-    (memory / "repository-governance.md").write_text(TEMPLATE.read_text(encoding="utf-8"), encoding="utf-8")
     (root / "mcp.config.json").write_text("{}", encoding="utf-8")
 
-    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "unknown-agent"}, False)
+    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "unknown-agent"}, {})
 
     assert "- Active integration: unknown-agent" in projection
     assert "- Skill discovery: evidence-only repository scan; platform activation is integration-specific." in projection
@@ -595,7 +739,33 @@ def test_skill_capabilities_are_sorted_by_path(tmp_path):
     assert first_index < later_index
 
 
-def test_existing_generated_section_is_refresh_source_of_truth(tmp_path):
+def test_skill_capability_index_preserves_trigger_metadata(tmp_path):
+    module = load_refresh_module()
+    root = tmp_path
+    skill_path = root / ".codex" / "skills" / "review" / "SKILL.md"
+    skill_path.parent.mkdir(parents=True)
+    skill_path.write_text(
+        "\n".join(
+            [
+                "---",
+                "name: code-review",
+                "description: Review pull requests for regressions.",
+                "trigger: when reviewing PR comments or changes",
+                "---",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    lines = module.skill_capability_lines(root)
+
+    assert "- Repository capability: code-review" in lines
+    assert "  - Scenario: Review pull requests for regressions." in lines
+    assert "  - Trigger: when reviewing PR comments or changes" in lines
+    assert "  - Source: `.codex/skills/review/SKILL.md`." in lines
+
+
+def test_existing_generated_section_is_not_refresh_source(tmp_path):
     module = load_refresh_module()
     root = tmp_path
     memory = root / ".specify" / "memory"
@@ -635,41 +805,39 @@ def test_existing_generated_section_is_refresh_source_of_truth(tmp_path):
         encoding="utf-8",
     )
 
-    projection = module.render_projection(root, target, {"default_integration": "codex"}, False)
+    projection = module.render_projection(root, target, {"default_integration": "codex"}, {})
 
-    assert "- Reviewed active write boundary." in projection
-    assert "- Reviewed active MCP policy." in projection
+    assert "- Reviewed active write boundary." not in projection
+    assert "- Reviewed active MCP policy." not in projection
     assert "- Stale memory write boundary." not in projection
     assert "- Stale memory MCP policy." not in projection
+    assert "- Refresh source: current repository scan." in projection
 
 
-def test_projection_authority_order_uses_active_generated_section_not_memory(tmp_path):
+def test_projection_authority_order_uses_current_defaults_not_memory(tmp_path):
     module = load_refresh_module()
     root = tmp_path
-    memory = root / ".specify" / "memory"
-    memory.mkdir(parents=True)
-    (memory / "repository-governance.md").write_text(TEMPLATE.read_text(encoding="utf-8"), encoding="utf-8")
 
-    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, False)
+    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
 
     assert "2. Safety and permission constraints" in projection
-    assert "3. Active `SPECKIT GOVERNANCE` section" in projection
+    assert "3. Vertical SSOT documents" in projection
+    assert "4. Current repository code and configuration facts" in projection
+    assert "5. Active `PROJECT GOVERNANCE` projection" in projection
+    assert "Active projection is generated routing guidance and is subordinate to explicit vertical SSOT documents or source-backed repository facts on substantive conflicts." in projection
     assert "Repository governance rules from `.specify/memory/repository-governance.md`" not in projection
 
 
 def test_default_governance_does_not_inject_project_implementation_gate(tmp_path):
     module = load_refresh_module()
     root = tmp_path
-    memory = root / ".specify" / "memory"
-    memory.mkdir(parents=True)
-    (memory / "repository-governance.md").write_text(TEMPLATE.read_text(encoding="utf-8"), encoding="utf-8")
 
     template = TEMPLATE.read_text(encoding="utf-8")
-    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, False)
+    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
     combined = template + "\n" + projection
 
-    assert "required project-governance artifacts" not in combined
-    assert "owning project-governance workflow" not in combined
+    assert "required project implementation artifacts" not in combined
+    assert "owning project implementation workflow" not in combined
     assert "Non-Negotiable Execution Gates" not in combined
     assert "/speckit.implement" not in combined
 
@@ -740,14 +908,62 @@ def test_packaged_runtime_generates_codex_governance_file(tmp_path):
     )
 
     assert result.returncode == 0, result.stderr
-    assert "Target governance file: AGENTS.md" in result.stdout
-    assert "Governance file: generated" in result.stdout
+    assert "Target agent platform file: AGENTS.md" in result.stdout
+    assert "Project-governance projection: generated" in result.stdout
     generated = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
     assert "## Repository Evidence" in generated
     assert "- README: `README.md`" in generated
     assert_vertical_ssot_evidence(generated)
     assert "## Development Commands" in generated
     assert "- `npm test` -> `vitest run`" in generated
+
+
+def test_packaged_runtime_targets_non_agents_platform_and_cleans_stale_sections(tmp_path):
+    extension_root = tmp_path / ".specify" / "extensions" / "repository-governance"
+    (extension_root / "scripts").mkdir(parents=True)
+    (extension_root / "templates").mkdir(parents=True)
+    shutil.copy2(SCRIPT, extension_root / "scripts" / "refresh_repository_governance.py")
+    shutil.copy2(TEMPLATE, extension_root / "templates" / "repository-governance-template.md")
+    (tmp_path / ".specify" / "integration.json").write_text(
+        '{"default_integration":"claude","installed_integrations":["codex","claude"]}',
+        encoding="utf-8",
+    )
+    (tmp_path / "README.md").write_text("# Demo\n", encoding="utf-8")
+    (tmp_path / "AGENTS.md").write_text(
+        "\n".join(
+            [
+                "# Codex Context",
+                "",
+                "User-authored Codex note.",
+                "",
+                "<!-- PROJECT GOVERNANCE START -->",
+                "stale codex projection",
+                "<!-- PROJECT GOVERNANCE END -->",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [sys.executable, ".specify/extensions/repository-governance/scripts/refresh_repository_governance.py"],
+        cwd=tmp_path,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Target agent platform file: CLAUDE.md" in result.stdout
+    assert "Project-governance projection: generated" in result.stdout
+    generated = (tmp_path / "CLAUDE.md").read_text(encoding="utf-8")
+    old_target = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")
+    assert "<!-- PROJECT GOVERNANCE START -->" not in generated
+    assert "# Project Governance Projection" in generated
+    assert "- Active integration: claude" in generated
+    assert "- Context target: CLAUDE.md" in generated
+    assert "<!-- PROJECT GOVERNANCE START -->" not in old_target
+    assert "stale codex projection" not in old_target
 
 
 def test_vertical_ssot_evidence_extracts_repository_facts(tmp_path):
@@ -770,18 +986,15 @@ def test_vertical_ssot_evidence_extracts_repository_facts(tmp_path):
     (root / ".mcp.json").write_text("{}", encoding="utf-8")
     (root / "AGENTS.md").write_text("# Agent rules\n", encoding="utf-8")
 
-    created = module.ensure_memory(root)
-    text = (root / ".specify" / "memory" / "repository-governance.md").read_text(encoding="utf-8")
+    text = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
 
-    assert created is True
     assert_vertical_ssot_evidence(text)
     assert "- Architecture evidence: `src/`, `src/api/routes.py`" in text
-    assert "- Engineering evidence: `.github/workflows/ci.yml`, `package.json`" in text
+    assert "- Engineering evidence: `.github/workflows/ci.yml`, `package.json`, `Dockerfile`" in text
     assert "- Code Style evidence: `eslint.config.js`, `tests/`" in text
     assert "- Directory Structure evidence:" in text
     assert "`src/`" in text
     assert "`tests/`" in text
-    assert "- Toolchain evidence: `package.json`, `Dockerfile`" in text
     assert "- Agent Harness evidence: `AGENTS.md`, `.specify/integration.json`, `.mcp.json`" in text
 
 
@@ -809,10 +1022,8 @@ def test_repository_evidence_captures_broader_repo_facts(tmp_path):
     (root / "compose.yaml").write_text("services: {}\n", encoding="utf-8")
     (root / "AGENTS.md").write_text("# Agent rules\n", encoding="utf-8")
 
-    created = module.ensure_memory(root)
-    text = (root / ".specify" / "memory" / "repository-governance.md").read_text(encoding="utf-8")
+    text = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
 
-    assert created is True
     assert "- Project docs: `docs/`" in text
     assert "- Spec Kit metadata: `.specify/integration.json`" in text
     assert "- Package manifest: `requirements-dev.txt`" in text
@@ -822,7 +1033,7 @@ def test_repository_evidence_captures_broader_repo_facts(tmp_path):
     assert "- API contracts: `openapi.yaml`" in text
     assert "- Build config: `vite.config.ts`, `tsconfig.build.json`" in text
     assert "- Runtime config: `.env.example`, `compose.yaml`, `infra/`" in text
-    assert "- Toolchain evidence: `requirements-dev.txt`, `pnpm-lock.yaml`, `justfile`, `vite.config.ts`, `tsconfig.build.json`, `.env.example`, `compose.yaml`, `infra/`" in text
+    assert "- Engineering evidence: `requirements-dev.txt`, `pnpm-lock.yaml`, `justfile`, `vite.config.ts`, `tsconfig.build.json`, `.env.example`, `compose.yaml`, `infra/`" in text
 
 
 def test_extension_source_facts_and_python_uv_commands_are_detected(tmp_path):
@@ -848,15 +1059,12 @@ def test_extension_source_facts_and_python_uv_commands_are_detected(tmp_path):
     (root / "uv.lock").write_text("version = 1\n", encoding="utf-8")
     (root / "AGENTS.md").write_text("# Agent rules\n", encoding="utf-8")
 
-    created = module.ensure_memory(root)
-    text = (root / ".specify" / "memory" / "repository-governance.md").read_text(encoding="utf-8")
+    text = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
 
-    assert created is True
     assert "- Extension assets: `extension.yml`, `.extensionignore`, `commands/`, `templates/`" in text
     assert "- Source paths: `scripts/`, `commands/`, `templates/`" in text
     assert "- Architecture evidence: `scripts/`, `commands/`, `templates/`" in text
-    assert "- Engineering evidence: `commands/speckit.repository-governance.refresh.md`, `templates/repository-governance-template.md`, `docs/extension-governance.md`, `pyproject.toml`" in text
-    assert "- Toolchain evidence: `pyproject.toml`, `uv.lock`, `extension.yml`, `.extensionignore`, `commands/`, `templates/`" in text
+    assert "- Engineering evidence: `commands/speckit.repository-governance.refresh.md`, `templates/repository-governance-template.md`, `docs/extension-governance.md`, `pyproject.toml`, `uv.lock`, `extension.yml`, `.extensionignore`, `commands/`, `templates/`" in text
     assert "- `uv run --locked pytest -q` -> pytest suite" in text
 
 
@@ -874,21 +1082,15 @@ def test_feature_specs_are_reported_with_file_status(tmp_path):
     (feature / "spec.md").write_text("# Spec\n", encoding="utf-8")
     (feature / "tasks.md").write_text("# Tasks\n", encoding="utf-8")
 
-    created = module.ensure_memory(root)
-    text = (root / ".specify" / "memory" / "repository-governance.md").read_text(encoding="utf-8")
+    text = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
 
-    assert created is True
     assert "- Feature specs: `specs/001-demo (spec.md:present, plan.md:missing, tasks.md:present)`" in text
 
 
-def test_ensure_memory_initializes_from_repository_evidence(tmp_path):
+def test_projection_renders_current_repository_evidence(tmp_path):
     module = load_refresh_module()
     root = tmp_path
-    (root / ".specify" / "extensions" / "repository-governance" / "templates").mkdir(parents=True)
-    (root / ".specify" / "extensions" / "repository-governance" / "templates" / "repository-governance-template.md").write_text(
-        TEMPLATE.read_text(encoding="utf-8"),
-        encoding="utf-8",
-    )
+    (root / ".specify").mkdir()
     (root / ".specify" / "integration.json").write_text('{"default_integration": "codex"}', encoding="utf-8")
     (root / "README.md").write_text("# Evidence App\n\nA sample Spec Kit app.\n", encoding="utf-8")
     (root / "package.json").write_text(
@@ -899,10 +1101,8 @@ def test_ensure_memory_initializes_from_repository_evidence(tmp_path):
     (root / "tests").mkdir()
     (root / "AGENTS.md").write_text("# Agent Notes\n\nExisting user-authored context.\n", encoding="utf-8")
 
-    created = module.ensure_memory(root)
-    text = (root / ".specify" / "memory" / "repository-governance.md").read_text(encoding="utf-8")
+    text = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
 
-    assert created is True
     assert "## Repository Evidence" in text
     assert_vertical_ssot_evidence(text)
     assert "- README: `README.md`" in text

@@ -14,25 +14,24 @@
 
 ## Product
 
-- Output: active repository governance file from Spec Kit integration metadata
-- Managed section: `SPECKIT GOVERNANCE`
-- Cache: `.specify/memory/repository-governance.md`
-- Cache status: internal
-- Review target: active target file only
+- Output: active agent platform project-governance projection from safe `context_file` override or Spec Kit integration metadata
+- File mode: full generated projection file
+- Cache: none
+- Review target: active agent platform target only
 
 ## Scope
 
-- Generate missing target governance file
-- Update existing target managed section
+- Resolve and generate only the active agent platform target
+- Overwrite existing active target with full project-governance projection
+- Review and report only the active agent platform target
 - Distill detected repository areas into action rules
 - Capture repository facts as vertical SSOT evidence
 - Repository area depth: 2
 - Repository areas include hidden and cache directories
 - Directory responsibility: one primary purpose per directory
-- Preserve content outside managed markers
-- Clean stale managed sections from non-active targets
+- Clean legacy managed sections only from non-active context files enumerated by `CONTEXT_FILES`
 - No implementation code generation
-- No project-governance ownership
+- No project implementation artifact generation
 
 ## Commands
 
@@ -45,10 +44,8 @@ uv run python tools/build_repository_governance_zip.py
 ## Rules
 
 - Keep README, command, script, template, extension governance, changelog, and tests aligned.
-- Keep generated governance concise, direct, and self-contained.
-- Preserve markers:
-  - `<!-- SPECKIT GOVERNANCE START -->`
-  - `<!-- SPECKIT GOVERNANCE END -->`
+- Keep generated project-governance projections concise, direct, and self-contained.
+- Do not reintroduce managed markers; legacy managed sections are cleanup targets only.
 - Keep target mappings explicit in `CONTEXT_FILES`.
 - Constrain target paths with `safe_project_path`.
 - Normalize generated text to LF.
@@ -73,9 +70,11 @@ uv run python tools/build_repository_governance_zip.py
 
 ## Boundaries
 
-- Write surface: `.specify/memory/repository-governance.md` and managed sections in known agent context files.
-- Protected files: implementation, secrets, CI, permissions, arbitrary repository paths.
-- Protected-file writes: explicit user request plus matching tests.
+- Write surface:
+  - resolved active agent platform target
+  - legacy managed-section cleanup in non-active context files enumerated by `CONTEXT_FILES`
+- Protected files: implementation paths, secrets, CI configuration, MCP configuration, permissions, tool settings, and arbitrary repository paths outside the resolved write surface.
+- Protected-file writes require explicit user request, a named matching contract or regression test, and passing validation commands.
 - Secrets: never log, never write.
 - User edits: preserve.
 
