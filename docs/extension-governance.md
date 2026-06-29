@@ -34,9 +34,9 @@ Do not add preset behavior here. Do not override core `/speckit.specify`, `/spec
 
 Command files may name required inputs, outputs, procedure steps, helper commands, and final reporting requirements. They must not hide durable output structure that belongs in templates or scripts.
 
-Template files define default projection wording, file structure, authority order, vertical SSOT registry, repository workflow, write boundaries, agent adapter contract, scenario capability index, MCP policy, skill contract, and handoff requirements. Keep templates concise, direct, self-contained, and free of project-specific examples.
+Template files define default projection wording, file structure, authority order, repository-wide instructions, SSOT routing, path and task scope rules, write boundaries, agent harness contract, scenario capability index, MCP policy, skill contract, and handoff requirements. Keep templates concise, direct, self-contained, and free of project-specific examples.
 
-Script files own behavior that must be repeatable without agent interpretation: resolving the active agent platform target, scanning current repository evidence on every run, overwriting the active agent platform target, normalizing generated text to LF, projecting adapter-specific capability rules, cleaning legacy marker blocks from non-active targets, and reporting generated or updated status.
+Script files own behavior that must be repeatable without agent interpretation: resolving the active agent platform target, scanning current repository evidence on every run, overwriting the active agent platform target, normalizing generated text to LF, projecting Copilot-like instruction layers inside the single active target, projecting adapter-specific capability rules, cleaning legacy marker blocks from non-active targets, and reporting generated or updated status.
 
 ## Project-Governance Projection Contract
 
@@ -45,6 +45,8 @@ Script files own behavior that must be repeatable without agent interpretation: 
 - Cache: none.
 - The active agent platform target is the only review target.
 - Existing active target content is overwritten on generation.
+- Copilot's repository-wide, path-specific, and agent-instruction model is a structural reference only.
+- The extension must not generate Copilot `.github/instructions/*.instructions.md` companion files unless the product contract and tests first redefine the write surface.
 - Stale legacy marker blocks in non-active context files enumerated by `CONTEXT_FILES` may be removed.
 - Legacy `SPECKIT GOVERNANCE` sections are migration cleanup targets, not the long-term projection authority.
 
@@ -90,6 +92,17 @@ Repository fact detection should cover repository-level docs and policy files, S
 Directory governance scans repository areas to depth 2. Include hidden, generated, cache, config, tool, and agent directories. Preserve the one-primary-purpose-per-directory rule and avoid injecting project-specific examples into generated projections.
 
 When a vertical SSOT is missing or incomplete, infer temporary guidance only from current repository facts and keep that guidance subordinate to explicit SSOT content.
+
+## Instruction Layering
+
+Generated projections use Copilot's custom-instructions model as an internal organization pattern:
+
+- Repository-wide instructions hold active-target scope, authority, conflict handling, write boundaries, validation, and handoff guidance.
+- SSOT routing maps task types and path families to Architecture, Engineering, Code Style, Directory Structure, and Agent Harness ownership.
+- Path and task scope rules replace vague routing language with deterministic read-before-edit triggers.
+- Agent harness guidance owns adapter behavior, repository-local skill use, MCP runtime discovery, permissions, external writes, and failure handling.
+
+Keep the generated guidance short and self-contained. Do not add broad style-personality instructions, external-resource requirements, or task-specific implementation directions to the projection.
 
 ## Agent Adapter And Capability Index
 
