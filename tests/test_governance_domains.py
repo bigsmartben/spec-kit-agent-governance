@@ -35,7 +35,7 @@ def load_projection_module():
 
 def assert_repository_governance_framework(text: str) -> None:
     assert "Project Governance Projection Framework" in text
-    assert "Vertical SSOT Registry" in text
+    assert "SSOT Routing" in text
     assert "Architecture SSOT" in text
     assert "Engineering SSOT" in text
     assert "Code Style SSOT" in text
@@ -46,7 +46,12 @@ def assert_repository_governance_framework(text: str) -> None:
 
 
 def assert_vertical_ssot_evidence(text: str) -> None:
-    assert "## Vertical SSOT Evidence" in text
+    assert "## SSOT Routing" in text
+    assert "- Architecture SSOT route:" in text
+    assert "- Engineering SSOT route:" in text
+    assert "- Code Style SSOT route:" in text
+    assert "- Directory Structure SSOT route:" in text
+    assert "- Agent Harness SSOT route:" in text
     assert "- Architecture evidence:" in text
     assert "- Engineering evidence:" in text
     assert "- Code Style evidence:" in text
@@ -67,7 +72,7 @@ def test_template_declares_final_outputs_without_placeholders():
     assert "active agent platform project-governance projection" in text
     assert "generated active agent platform target file" in text
     assert "TODO(" not in text
-    final_outputs = text.split("## Final Output", 1)[1].split("## Scope", 1)[0]
+    final_outputs = text.split("## Final Output", 1)[1].split("## Repository-Wide Instructions", 1)[0]
     assert "- active agent platform project-governance projection" in final_outputs
     assert "- generated active agent platform target file" in final_outputs
 
@@ -75,22 +80,24 @@ def test_template_declares_final_outputs_without_placeholders():
 def test_template_defines_overwrite_projection_and_scopes_broad_updates():
     text = TEMPLATE.read_text(encoding="utf-8")
 
-    assert "## Authority" in text
+    assert "### Authority" in text
     assert "## SSOT Read Order" not in text
-    assert "## Repository Workflow" in text
+    assert "## Repository-Wide Instructions" in text
+    assert "## Path And Task Scope Rules" in text
+    assert "## Agent Harness" in text
     assert "Active agent platform target: generated output, overwritten on generation." in text
     assert "Active projection is generated routing guidance and is subordinate to explicit vertical SSOT documents or source-backed repository facts on substantive conflicts." in text
     assert "Protected-file writes: explicit user request, named matching contract or regression test, and passing validation commands" in text
     assert "Legacy managed-section cleanup: non-active context files enumerated by `CONTEXT_FILES`." in text
-    assert "Mutation: explicit user intent with target, action, and expected effect." in text
+    assert "MCP mutation: explicit user intent with target, action, and expected effect." in text
+    assert "Use the Copilot instruction model for layering only; do not emit Copilot path-specific companion files." in text
     assert "`<!-- PROJECT GOVERNANCE START -->`" not in text
     assert "`<!-- PROJECT GOVERNANCE END -->`" not in text
     assert "`<!-- SPECKIT GOVERNANCE START -->`" not in text
     assert "`<!-- SPECKIT GOVERNANCE END -->`" not in text
-    assert "## Agent Platform Adapter" in text
-    assert "## Capability Index" in text
+    assert "## Agent Harness" in text
     assert "Repository Capability: abstract repository-local skill and MCP evidence into scenario capabilities." in text
-    assert "Config candidates: evidence only, not proof of active tools." in text
+    assert "Repository config candidates are evidence only unless the active adapter supports them." in text
     assert "Repository-local skill specs should declare" in text
     assert "Required fields: purpose" not in text
     assert "update only when in scope and authorized" in text
@@ -104,7 +111,10 @@ def test_readme_positions_extension_as_repository_governance_framework():
     assert "Active agent platform target from safe `context_file` override or Spec Kit integration metadata." in text
     assert "Project agent platform adapter rules from Spec Kit integration metadata." in text
     assert "Build a scenario capability index for repository-local skills and MCP-backed external tool evidence." in text
+    assert "Structure generated instructions with Copilot-like repository-wide, path-scope, and agent-harness layers." in text
+    assert "Do not generate Copilot `.github/instructions/*.instructions.md` companion files." in text
     assert "## Vertical SSOT Coverage" in text
+    assert "## Instruction Layers" in text
     assert "## Evidence Coverage" in text
     vertical_coverage = text.split("## Vertical SSOT Coverage", 1)[1].split("## Evidence Coverage", 1)[0]
     evidence_coverage = text.split("## Evidence Coverage", 1)[1].split("## Agent Adapter", 1)[0]
@@ -133,6 +143,9 @@ def test_extension_governance_defines_repository_extension_contract():
     assert "`templates/` owns the stable projection template and generated file shape." in text
     assert "`scripts/` owns deterministic project-governance projection behavior." in text
     assert "The extension projects project-governance and repository capabilities through a Spec Kit Agent Adapter layer:" in text
+    assert "Copilot's repository-wide, path-specific, and agent-instruction model is a structural reference only." in text
+    assert "The extension must not generate Copilot `.github/instructions/*.instructions.md` companion files unless the product contract and tests first redefine the write surface." in text
+    assert "## Instruction Layering" in text
     assert "MCP configuration differs across agent platforms." in text
     assert "The active agent platform target is the only review target." in text
     assert "Keep `CONTEXT_FILES` mappings explicit." in text
@@ -262,8 +275,11 @@ def test_usage_is_single_command_generate_or_update_flow():
     assert "speckit.repository-governance.refresh" not in readme
     assert "Review only the active agent platform target." in readme
     assert "Overwrite the active agent platform target on generation." in readme
+    assert "Do not generate Copilot `.github/instructions/*.instructions.md` companion files." in readme
     assert "Remove legacy managed sections only from non-active context files enumerated by `CONTEXT_FILES`." in readme
     assert "Generate repository evidence from the current repository state on every run." in readme
+    assert "Reference the Copilot custom-instructions model for projection structure, but emit only the active agent platform target." in command
+    assert "no `.github/instructions/*.instructions.md` companion files" in command
     assert "Use existing managed section as projection source." not in command
     assert "Preserve managed markers verbatim." not in command
     assert "generated or updated" in command
@@ -310,6 +326,36 @@ def test_cli_report_prioritizes_active_target_and_current_evidence(tmp_path):
     assert not any(line.startswith("Internal initialization cache: ") for line in lines)
     assert not any(line.startswith("Source memory: ") for line in lines)
     assert not any(line.startswith("Memory: ") for line in lines)
+
+
+def test_copilot_integration_generates_only_active_copilot_target(tmp_path):
+    extension_root = tmp_path / ".specify" / "extensions" / "repository-governance"
+    (extension_root / "scripts").mkdir(parents=True)
+    (extension_root / "templates").mkdir(parents=True)
+    shutil.copy2(SCRIPT, extension_root / "scripts" / "generate_repository_governance.py")
+    shutil.copy2(TEMPLATE, extension_root / "templates" / "repository-governance-template.md")
+    (tmp_path / ".specify" / "integration.json").write_text(
+        '{"default_integration":"copilot","installed_integrations":["copilot"]}',
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [sys.executable, ".specify/extensions/repository-governance/scripts/generate_repository_governance.py"],
+        cwd=tmp_path,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Target agent platform file: .github/copilot-instructions.md" in result.stdout
+    generated = tmp_path / ".github" / "copilot-instructions.md"
+    assert generated.is_file()
+    assert not (tmp_path / ".github" / "instructions").exists()
+    text = generated.read_text(encoding="utf-8")
+    assert "Use the Copilot instruction model for layering only; do not emit Copilot path-specific companion files." in text
+    assert "## Repository-Wide Instructions" in text
+    assert "## Agent Harness" in text
 
 
 def test_write_projection_overwrites_active_target(tmp_path):
@@ -557,11 +603,15 @@ def test_projection_defines_repository_governance_framework_ssot(tmp_path):
     assert "- Projection: active agent platform target file." in projection
     assert "- Domain: project-governance." in projection
     assert "- Extension identity: repository-governance." in projection
+    assert "## Repository-Wide Instructions" in projection
+    assert "## SSOT Routing" in projection
+    assert "## Path And Task Scope Rules" in projection
+    assert "## Agent Harness" in projection
+    assert "Use the Copilot instruction model for layering only; do not emit Copilot path-specific companion files." in projection
     assert "Active projection is generated routing guidance and is subordinate to explicit vertical SSOT documents or source-backed repository facts on substantive conflicts." in projection
     assert "Protected-file writes: explicit user request, named matching contract or regression test, and passing validation commands" in projection
-    assert "Review and report only the active agent platform target" in projection
-    assert "## Repository Workflow" in projection
-    assert "- Classify task type before changing files." in projection
+    assert "Generate and review only the resolved active agent platform target." in projection
+    assert "- Classify task type and path family before changing files." in projection
     assert "SPECKIT GOVERNANCE" not in projection
     assert "Repository governance SSOT: `.specify/memory/repository-governance.md`" not in projection
     assert "`.specify/memory/repository-governance.md` is the SSOT" not in projection
@@ -571,6 +621,23 @@ def test_projection_defines_repository_governance_framework_ssot(tmp_path):
     assert "Initialization Evidence Cache:" not in projection
     assert "## Governance Domains" not in projection
     assert "## Resolved Repository Context" not in projection
+
+
+def test_projection_maps_vertical_ssot_to_task_scope_rules(tmp_path):
+    module = load_projection_module()
+    root = tmp_path
+
+    projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
+
+    assert "## SSOT Routing" in projection
+    assert "- Architecture SSOT route: use for source roots, route files, API contracts, runtime constraints, deployment assumptions, and architecture decisions." in projection
+    assert "- Engineering SSOT route: use for branch, version, release, CI/CD, command entrypoints, manifests, lockfiles, build config, runtime config, and extension packaging." in projection
+    assert "- Code Style SSOT route: use for naming, formatting, comments, error handling, logging, tests, linting, typing, and quality standards." in projection
+    assert "- Directory Structure SSOT route: use for directory layout, file placement, module organization, configuration locations, and generated artifact placement." in projection
+    assert "- Agent Harness SSOT route: use for agent task boundaries, tool usage, permissions, audit, validation, failure handling, skills, and MCP config candidates." in projection
+    assert "## Path And Task Scope Rules" in projection
+    assert "- Source, API, route, runtime, infra, or dependency-boundary changes: read Architecture SSOT before planning edits." in projection
+    assert "- Agent instructions, permissions, MCP, external tools, skills, validation, or failure-handling changes: read Agent Harness SSOT before edits." in projection
 
 
 def test_projection_includes_repository_evidence_and_development_commands(tmp_path):
@@ -586,7 +653,7 @@ def test_projection_includes_repository_evidence_and_development_commands(tmp_pa
     assert "## Repository Evidence" in projection
     assert "- README: `README.md`" in projection
     assert "- Source paths: `src/`" in projection
-    assert "## Vertical SSOT Evidence" in projection
+    assert "## SSOT Routing" in projection
     assert "- Architecture evidence: `src/`" in projection
     assert "- Engineering evidence: `package.json`" in projection
     assert "## Development Commands" in projection
@@ -612,9 +679,9 @@ def test_repository_areas_scan_two_directory_levels_including_hidden_and_cache_d
     (root / ".specify" / "integration.json").write_text('{"default_integration": "codex"}', encoding="utf-8")
 
     projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
-    areas = projection.split("## Repository Areas", 1)[1].split("## Development Commands", 1)[0]
+    areas = projection.split("### Repository Areas", 1)[1].split("### Directory Governance", 1)[0]
 
-    assert "## Repository Areas" in projection
+    assert "### Repository Areas" in projection
     assert "- `docs/`: review before changing linked areas." in areas
     assert "- `docs/reference/`: change with parent area `docs/`." in areas
     assert "- `src/`: review before changing linked areas." in areas
@@ -637,9 +704,9 @@ def test_projection_includes_generic_directory_governance(tmp_path):
     root = tmp_path
 
     projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
-    directory_governance = projection.split("## Directory Governance", 1)[1].split("## Development Commands", 1)[0]
+    directory_governance = projection.split("### Directory Governance", 1)[1].split("## Agent Harness", 1)[0]
 
-    assert "## Directory Governance" in projection
+    assert "### Directory Governance" in projection
     assert "- Responsibility: one primary purpose per directory." in projection
     assert "- Depth: 2." in projection
     assert "- Coverage: include visible, hidden, generated, cache, config/env, tool, and agent directories." in projection
@@ -678,12 +745,11 @@ def test_projection_includes_agent_adapter_and_capability_index(tmp_path):
 
     projection = module.render_projection(root, root / "AGENTS.md", {"default_integration": "codex"}, {})
 
-    assert "## Agent Platform Adapter" in projection
+    assert "## Agent Harness" in projection
     assert "- Active integration: codex" in projection
     assert "- Context target: AGENTS.md" in projection
     assert "- Skill discovery: repository-local `SKILL.md` capability specs, sorted by path." in projection
     assert "- MCP discovery: platform runtime enumeration first; repository config candidates are evidence only unless supported by this adapter." in projection
-    assert "## Capability Index" in projection
     assert "- Repository capability: code-review" in projection
     assert "Scenario: Review pull requests for behavioral regressions and missing tests." in projection
     assert "Trigger: when reviewing PR comments or changes" in projection
